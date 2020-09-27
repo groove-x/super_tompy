@@ -4,6 +4,7 @@
 #include <Const.h>
 #include <RhythmServo.h>
 #include <AnimationServo.h>
+#include <Const.h>
 
 // #define ENABLE_LCD
 
@@ -31,10 +32,11 @@ RhythmServo rhythm_servos[Rhythm::Pin::NUM]
     RhythmServo(Rhythm::Pin::MAGMA_HAND_R,  Rhythm::beatInterval, 95, Plus),
     RhythmServo(Rhythm::Pin::MAGMA_HAND_L,  Rhythm::beatInterval, 95, Plus)};
 
-AnimationServo anim_servos[Anim::Pin::NUM] = {AnimationServo(Anim::Pin::DOGMA_HEAD_PITCH, 90, Anim::keyframes, Anim::keyframe_len),
-                                                   AnimationServo(Anim::Pin::DOGMA_HEAD_ROLL, 90, Anim::keyframes, Anim::keyframe_len),
-                                                   AnimationServo(Anim::Pin::SIGMA_HEAD_PITCH, 90, Anim::keyframes, Anim::keyframe_len),
-                                                   AnimationServo(Anim::Pin::SIGMA_HEAD_ROLL, 90, Anim::keyframes, Anim::keyframe_len)};
+AnimationServo anim_servos[Anim::Pin::NUM]
+ = {AnimationServo(Anim::Pin::DOGMA_HEAD_PITCH, 90, Anim::neck_pitch_frames, Anim::dram_pitch_len),
+    AnimationServo(Anim::Pin::DOGMA_HEAD_ROLL, 90, Anim::neck_roll_frames, Anim::dram_roll_len),
+    AnimationServo(Anim::Pin::SIGMA_HEAD_PITCH, 90, Anim::neck_pitch_frames, Anim::vocal_pitch_len),
+    AnimationServo(Anim::Pin::SIGMA_HEAD_ROLL, 90, Anim::neck_roll_frames, Anim::vocal_pitch_len)};
 
 void servo_reset()
 {
@@ -62,8 +64,10 @@ void servo_update()
     if(current_time - lastUpdate > Rhythm::beatInterval){
         lastUpdate = current_time;
         beatIndex = (beatIndex+1) % Rhythm::beat_len;
-        if(beatIndex == 0)
+        if(beatIndex == 0){
             patternIndex = (patternIndex+1) % Rhythm::pattern_len; 
+            state = Pause;  // only play 1 pattern
+        }
     }
 
     for(int i=0; i<Rhythm::Pin::NUM;++i)
@@ -158,10 +162,10 @@ void update()
 void loop()
 {
 // #ifdef ENABLE_LCD
-    if (state != Play)
-    {
+    // if (state != Play)
+    // {
         display();
-    }
+    // }
 // #endif
     input();
     update();
