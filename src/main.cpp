@@ -1,18 +1,11 @@
 #include <Arduino.h>
 #include <M5Stack.h>
+
+#include <Const.h>
 #include <RhythmServo.h>
 #include <AnimationServo.h>
 
 // #define ENABLE_LCD
-
-#define RHYTHM_SERVO_NUM 6
-#define ANIMATION_SERVO_NUM 6
-
-#define BEAT_LEN 16
-#define PATTERN_NUM 9
-#define PATTERN_LEN 20
-
-#define KEYFRAME_LEN 8
 
 typedef enum {
     Pause = 0,
@@ -21,116 +14,34 @@ typedef enum {
 } State;
 State state = Pause;
 
-uint8_t beat[PATTERN_NUM][RHYTHM_SERVO_NUM][BEAT_LEN]
- = {{
-    {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
-    {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0} 
-   },{
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0}
-   },{
-    {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0}
-   },{
-    {1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-   },{
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-   },{
-    {1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-   },{
-    {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-   },{
-    {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-   },{
-    {0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0},
-    {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-   }};
-
-// uint8_t patterns[PATTERN_LEN] = {0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1};
-// uint8_t patterns[PATTERN_LEN] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-// uint8_t patterns[PATTERN_LEN] = {0, 1, 1, 1, 1, 2, 2, 2, 3, 1, 1, 1, 4, 1, 5, 6, 7, 7, 7, 8};
-uint8_t patterns[PATTERN_LEN] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
 int beatIndex = 0;
 int patternIndex = 0;
-
-// int beatInterval = (60. / 120.) / 4. * 1000; // 120 bpm -> 2 beat / 1sec -> 500msec / 4つ打ち (500 / 4) = 125
-int beatInterval = (60. / 140) / 4. * 1000;  // 140 bpm 
-// int beatInterval = (60. / 85.) / 4. * 1000;  // 85 bpm 
-// int beatInterval = (60. / 81.4) / 4. * 1000; // 81.4 bpm 
-// int beatInterval = (60. / 60.) / 4. * 1000;  // 60 bpm
-// int beatInterval = (60. / 150.) / 4. * 1000;  // 60 bpm
-// int beatInterval = (60. / 75.) / 4. * 1000;  // 60 bpm
-// int beatInterval = (60. / 30.) / 4. * 1000;  // 30 bpm
-
-
 unsigned long lastUpdate = 0;
 unsigned long printLastUpdate = 0;
 bool lastWasReset = false;
 
-RhythmServo rhythm_servos[RHYTHM_SERVO_NUM] = {RhythmServo(1,  beatInterval, 90, Minus), 
-                                               RhythmServo(3,  beatInterval, 95, Plus),                                               
-                                               RhythmServo(5,  beatInterval, 90, Plus),
-                                               RhythmServo(7,  beatInterval, 95, Plus),
-                                               RhythmServo(9,  beatInterval, 95, Plus),
-                                               RhythmServo(11, beatInterval, 95, Plus)};
+RhythmServo rhythm_servos[Rhythm::Pin::NUM]
+ = {RhythmServo(Rhythm::Pin::DOGMA_HAND_R,  Rhythm::beatInterval, 90, Minus), 
+    RhythmServo(Rhythm::Pin::DOGMA_HAND_L,  Rhythm::beatInterval, 95, Plus),                                               
+    RhythmServo(Rhythm::Pin::DOGMA_FOOT_R,  Rhythm::beatInterval, 90, Plus),
+    RhythmServo(Rhythm::Pin::DOGMA_FOOT_L,  Rhythm::beatInterval, 95, Plus),
+    RhythmServo(Rhythm::Pin::SIGMA_HAND_R,  Rhythm::beatInterval, 95, Plus),
+    RhythmServo(Rhythm::Pin::SIGMA_HAND_L,  Rhythm::beatInterval, 95, Plus),
+    RhythmServo(Rhythm::Pin::MAGMA_HAND_R,  Rhythm::beatInterval, 95, Plus),
+    RhythmServo(Rhythm::Pin::MAGMA_HAND_L,  Rhythm::beatInterval, 95, Plus)};
 
-KeyFrame keyframes[KEYFRAME_LEN] = { {110, 200}, {90, 200}, {110, 200}, {90, 200}, {120, 100}, {90, 100}, {120, 100}, {90, 100}};
-AnimationServo anim_servos[ANIMATION_SERVO_NUM] = {AnimationServo(0, 90, keyframes, KEYFRAME_LEN),
-                                                   AnimationServo(2, 90, keyframes, KEYFRAME_LEN),
-                                                   AnimationServo(4, 90, keyframes, KEYFRAME_LEN),
-                                                   AnimationServo(6, 90, keyframes, KEYFRAME_LEN),
-                                                   AnimationServo(8, 90, keyframes, KEYFRAME_LEN),
-                                                   AnimationServo(10, 90, keyframes, KEYFRAME_LEN)};
+AnimationServo anim_servos[Anim::Pin::NUM] = {AnimationServo(Anim::Pin::DOGMA_HEAD_PITCH, 90, Anim::keyframes, Anim::keyframe_len),
+                                                   AnimationServo(Anim::Pin::DOGMA_HEAD_ROLL, 90, Anim::keyframes, Anim::keyframe_len),
+                                                   AnimationServo(Anim::Pin::SIGMA_HEAD_PITCH, 90, Anim::keyframes, Anim::keyframe_len),
+                                                   AnimationServo(Anim::Pin::SIGMA_HEAD_ROLL, 90, Anim::keyframes, Anim::keyframe_len)};
 
 void servo_reset()
 {
-    for(int i=0; i<RHYTHM_SERVO_NUM;++i)
+    for(int i=0; i<Rhythm::Pin::NUM;++i)
     {
         rhythm_servos[i].Reset();
     }
-    for(int i=0; i<ANIMATION_SERVO_NUM;++i)
+    for(int i=0; i<Anim::Pin::NUM;++i)
     {
         anim_servos[i].Reset();
     }
@@ -138,7 +49,7 @@ void servo_reset()
 
 void servo_set()
 {
-    for(int i=0; i<RHYTHM_SERVO_NUM;++i)
+    for(int i=0; i<Rhythm::Pin::NUM;++i)
     {
         rhythm_servos[i].Set();
     }
@@ -147,19 +58,19 @@ void servo_set()
 void servo_update()
 {
     unsigned long current_time = millis();
-    if(current_time - lastUpdate > beatInterval){
+    if(current_time - lastUpdate > Rhythm::beatInterval){
         lastUpdate = current_time;
-        beatIndex = (beatIndex+1) % BEAT_LEN;
+        beatIndex = (beatIndex+1) % Rhythm::beat_len;
         if(beatIndex == 0)
-            patternIndex = (patternIndex+1) % PATTERN_LEN; 
+            patternIndex = (patternIndex+1) % Rhythm::pattern_len; 
     }
 
-    for(int i=0; i<RHYTHM_SERVO_NUM;++i)
+    for(int i=0; i<Rhythm::Pin::NUM;++i)
     {
-        rhythm_servos[i].Update(beat[patterns[patternIndex]][i][beatIndex]);
+        rhythm_servos[i].Update(Rhythm::getBeat(patternIndex, i, beatIndex));
     }
 
-    for(int i=0; i<ANIMATION_SERVO_NUM;++i)
+    for(int i=0; i<Anim::Pin::NUM;++i)
     {
         anim_servos[i].Update();
     }
@@ -186,7 +97,7 @@ void display()
 
         printLastUpdate = currentTime;
         M5.Lcd.setCursor(0, 150);
-        for(int i=0; i<RHYTHM_SERVO_NUM;++i)
+        for(int i=0; i<Rhythm::Pin::NUM;++i)
         {
             M5.Lcd.printf("%d: %+4d, %d, %d, %d\n", rhythm_servos[i].Pin(), rhythm_servos[i].Pos(), 
                 rhythm_servos[i].BasePos(), rhythm_servos[i].TargetAng(), rhythm_servos[i].RotateDirection());
@@ -196,8 +107,8 @@ void display()
         else if(state == Pause)
             M5.Lcd.println("Pause");        
         M5.Lcd.printf("patternIndex: %3d, beatIndex: %3d\n", patternIndex, beatIndex);
-        M5.Lcd.printf("beatInterval: %3d\n", beatInterval);
-        for(int i=0; i<ANIMATION_SERVO_NUM;++i)
+        M5.Lcd.printf("beatInterval: %3d\n", Rhythm::beatInterval);
+        for(int i=0; i<Anim::Pin::NUM;++i)
         {
             M5.Lcd.printf("%d: %+4d, %d, %d\n", anim_servos[i].Pin(), anim_servos[i].Pos(), 
                 anim_servos[i].KeyframeIndex(), anim_servos[i].KeyframeLength());
