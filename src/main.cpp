@@ -21,8 +21,8 @@ State state = Pause;
 
 uint8_t beat[PATTERN_NUM][RHYTHM_SERVO_NUM][BEAT_LEN]
  = {{
-    {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0},
-    {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0},
+    {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
+    {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
     {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
     {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
     {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
@@ -87,7 +87,8 @@ uint8_t beat[PATTERN_NUM][RHYTHM_SERVO_NUM][BEAT_LEN]
 
 // uint8_t patterns[PATTERN_LEN] = {0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1};
 // uint8_t patterns[PATTERN_LEN] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-uint8_t patterns[PATTERN_LEN] = {0, 1, 1, 1, 1, 2, 2, 2, 3, 1, 1, 1, 4, 1, 5, 6, 7, 7, 7, 8};
+// uint8_t patterns[PATTERN_LEN] = {0, 1, 1, 1, 1, 2, 2, 2, 3, 1, 1, 1, 4, 1, 5, 6, 7, 7, 7, 8};
+uint8_t patterns[PATTERN_LEN] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 int beatIndex = 0;
 int patternIndex = 0;
@@ -155,6 +156,13 @@ void servo_update()
 
     unsigned long current_time = millis();
     if(current_time - lastUpdate > beatInterval){
+        static uint8_t gpio_val = 0;
+        if (gpio_val > 0)
+            gpio_val = 0;
+        else
+            gpio_val = 1;       
+        digitalWrite(5, gpio_val);
+
         lastUpdate = current_time;
         beatIndex = (beatIndex+1) % BEAT_LEN;
         if(beatIndex == 0)
@@ -170,6 +178,8 @@ void setup() {
     M5.Lcd.println("BtnC: Pause and reset");
 
     Wire.begin(21, 22, 100000);
+
+    pinMode(5, OUTPUT);
 
     servo_reset();
     delay(1000);
@@ -238,7 +248,7 @@ void update()
 
 void loop()
 {
-    display();
+    // display();
     input();
     update();
 }
