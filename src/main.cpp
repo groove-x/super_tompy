@@ -3,6 +3,8 @@
 #include <RhythmServo.h>
 #include <AnimationServo.h>
 
+// #define ENABLE_LCD
+
 #define RHYTHM_SERVO_NUM 6
 #define ANIMATION_SERVO_NUM 6
 
@@ -21,7 +23,7 @@ State state = Pause;
 
 uint8_t beat[PATTERN_NUM][RHYTHM_SERVO_NUM][BEAT_LEN]
  = {{
-    {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0},
+    {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
     {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0},
     {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
     {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
@@ -87,7 +89,8 @@ uint8_t beat[PATTERN_NUM][RHYTHM_SERVO_NUM][BEAT_LEN]
 
 // uint8_t patterns[PATTERN_LEN] = {0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1};
 // uint8_t patterns[PATTERN_LEN] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-uint8_t patterns[PATTERN_LEN] = {0, 1, 1, 1, 1, 2, 2, 2, 3, 1, 1, 1, 4, 1, 5, 6, 7, 7, 7, 8};
+// uint8_t patterns[PATTERN_LEN] = {0, 1, 1, 1, 1, 2, 2, 2, 3, 1, 1, 1, 4, 1, 5, 6, 7, 7, 7, 8};
+uint8_t patterns[PATTERN_LEN] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 int beatIndex = 0;
 int patternIndex = 0;
@@ -143,6 +146,14 @@ void servo_set()
 
 void servo_update()
 {
+    unsigned long current_time = millis();
+    if(current_time - lastUpdate > beatInterval){
+        lastUpdate = current_time;
+        beatIndex = (beatIndex+1) % BEAT_LEN;
+        if(beatIndex == 0)
+            patternIndex = (patternIndex+1) % PATTERN_LEN; 
+    }
+
     for(int i=0; i<RHYTHM_SERVO_NUM;++i)
     {
         rhythm_servos[i].Update(beat[patterns[patternIndex]][i][beatIndex]);
@@ -151,14 +162,6 @@ void servo_update()
     for(int i=0; i<ANIMATION_SERVO_NUM;++i)
     {
         anim_servos[i].Update();
-    }
-
-    unsigned long current_time = millis();
-    if(current_time - lastUpdate > beatInterval){
-        lastUpdate = current_time;
-        beatIndex = (beatIndex+1) % BEAT_LEN;
-        if(beatIndex == 0)
-            patternIndex = (patternIndex+1) % PATTERN_LEN; 
     }
 }
 
@@ -209,6 +212,10 @@ void input()
     if(M5.BtnA.wasPressed())
     {
         state = State((state + 1) % NumState);
+        if(state==Play)
+        {
+          lastUpdate = millis();
+        }
     }
     if(M5.BtnB.wasPressed())
     {
@@ -238,7 +245,9 @@ void update()
 
 void loop()
 {
+#ifdef ENABLE_LCD
     display();
+#endif
     input();
     update();
 }
