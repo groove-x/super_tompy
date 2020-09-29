@@ -156,9 +156,12 @@ void update()
 
 void loop()
 {
-#ifdef ENABLE_LCD
-    display();
-#endif
+// #ifdef ENABLE_LCD
+    if (state != Play)
+    {
+        display();
+    }
+// #endif
     input();
     update();
 }
