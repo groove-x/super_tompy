@@ -5,8 +5,10 @@
 
 #include <Const.h>
 #include <RhythmServo.h>
+#include <ChordServo.h>
 #include <AnimationServo.h>
 
+using namespace Music;
 
 SoftwareSerial mySoftwareSerial(25, 26); // RX, TX
 DFRobotDFPlayerMini myDFPlayer;
@@ -29,15 +31,17 @@ unsigned long lastUpdate = 0;
 unsigned long printLastUpdate = 0;
 bool lastWasReset = false;
 
-RhythmServo rhythm_servos[Rhythm::Pin::NUM]
- = {RhythmServo(Rhythm::Pin::DOGMA_HAND_R,  Rhythm::beatInterval, 90, Minus), 
-    RhythmServo(Rhythm::Pin::DOGMA_HAND_L,  Rhythm::beatInterval, 95, Plus),                                               
-    RhythmServo(Rhythm::Pin::DOGMA_FOOT_R,  Rhythm::beatInterval, 90, Plus),
-    RhythmServo(Rhythm::Pin::DOGMA_FOOT_L,  Rhythm::beatInterval, 95, Plus),
-    RhythmServo(Rhythm::Pin::SIGMA_HAND_R,  Rhythm::beatInterval, 95, Plus),
-    RhythmServo(Rhythm::Pin::SIGMA_HAND_L,  Rhythm::beatInterval, 95, Plus),
-    RhythmServo(Rhythm::Pin::MAGMA_HAND_R,  Rhythm::beatInterval, 95, Plus),
-    RhythmServo(Rhythm::Pin::MAGMA_HAND_L,  Rhythm::beatInterval, 95, Plus)};
+RhythmServo rhythm_servos[Swing::Pin::NUM]
+ = {RhythmServo(Swing::Pin::DOGMA_HAND_R,  beatInterval, 90, Minus), 
+    RhythmServo(Swing::Pin::DOGMA_HAND_L,  beatInterval, 95, Plus),                                               
+    RhythmServo(Swing::Pin::DOGMA_FOOT_R,  beatInterval, 90, Plus),
+    RhythmServo(Swing::Pin::DOGMA_FOOT_L,  beatInterval, 95, Plus),
+    RhythmServo(Swing::Pin::SIGMA_HAND_R,  beatInterval, 95, Plus),
+    RhythmServo(Swing::Pin::MAGMA_HAND_R,  beatInterval, 95, Plus)};
+
+ChordServo chord_servos[Chord::Pin::NUM]
+ = {ChordServo(Chord::Pin::SIGMA_HAND_L,  beatInterval, 95),
+    ChordServo(Chord::Pin::MAGMA_HAND_L,  beatInterval, 95)};
 
 AnimationServo anim_servos[Anim::Pin::NUM]
  = {AnimationServo(Anim::Pin::DOGMA_HEAD_PITCH, 90, Anim::neck_pitch_frames, Anim::dram_pitch_len),
@@ -47,9 +51,13 @@ AnimationServo anim_servos[Anim::Pin::NUM]
 
 void servo_reset()
 {
-    for(int i=0; i<Rhythm::Pin::NUM;++i)
+    for(int i=0; i<Swing::Pin::NUM;++i)
     {
         rhythm_servos[i].Reset();
+    }
+    for(int i=0; i<Chord::Pin::NUM;++i)
+    {
+        chord_servos[i].Reset();
     }
     for(int i=0; i<Anim::Pin::NUM;++i)
     {
@@ -59,30 +67,37 @@ void servo_reset()
 
 void servo_set()
 {
-    for(int i=0; i<Rhythm::Pin::NUM;++i)
+    for(int i=0; i<Swing::Pin::NUM;++i)
     {
         rhythm_servos[i].Set();
+    }
+    for(int i=0; i<Chord::Pin::NUM;++i)
+    {
+        chord_servos[i].Set();
     }
 }
 
 void servo_update()
 {
     unsigned long current_time = millis();
-    if(current_time - lastUpdate > Rhythm::beatInterval){
+    if(current_time - lastUpdate > beatInterval){
         lastUpdate = current_time;
-        beatIndex = (beatIndex+1) % Rhythm::beat_len;
+        beatIndex = (beatIndex+1) % beat_len;
         if(beatIndex == 0){
-            patternIndex = (patternIndex+1) % Rhythm::pattern_len; 
+            patternIndex = (patternIndex+1) % pattern_len; 
             // state = Pause;  // only play 1 pattern
             lastUpdate = millis();
         }
     }
 
-    for(int i=0; i<Rhythm::Pin::NUM;++i)
+    for(int i=0; i<Swing::Pin::NUM;++i)
     {
-        rhythm_servos[i].Update(Rhythm::getBeat(patternIndex, i, beatIndex));
+        rhythm_servos[i].Update(Swing::getBeat(patternIndex, i, beatIndex));
     }
-
+    for(int i=0; i<Chord::Pin::NUM;++i)
+    {
+        chord_servos[i].Update(Chord::getBeat(patternIndex, i, beatIndex));
+    }
     for(int i=0; i<Anim::Pin::NUM;++i)
     {
         anim_servos[i].Update();
@@ -128,7 +143,7 @@ void display()
 
         printLastUpdate = currentTime;
         M5.Lcd.setCursor(0, 150);
-        for(int i=0; i<Rhythm::Pin::NUM;++i)
+        for(int i=0; i<Swing::Pin::NUM;++i)
         {
             M5.Lcd.printf("%d: %+4d, %d, %d, %d\n", rhythm_servos[i].Pin(), rhythm_servos[i].Pos(), 
                 rhythm_servos[i].BasePos(), rhythm_servos[i].TargetAng(), rhythm_servos[i].RotateDirection());
@@ -140,7 +155,7 @@ void display()
         else if(state == Stop)
             M5.Lcd.println("Stop ");        
         M5.Lcd.printf("patternIndex: %3d, beatIndex: %3d\n", patternIndex, beatIndex);
-        M5.Lcd.printf("beatInterval: %3d\n", Rhythm::beatInterval);
+        M5.Lcd.printf("beatInterval: %3d\n", beatInterval);
         for(int i=0; i<Anim::Pin::NUM;++i)
         {
             M5.Lcd.printf("%d: %+4d, %d, %d\n", anim_servos[i].Pin(), anim_servos[i].Pos(), 

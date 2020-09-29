@@ -6,43 +6,38 @@
 
 class Servo
 {
-    uint8_t _pin;
-    int _pos;
-    int _minAng;
-    int _maxAng;
-    int _increment;
-    int _updateInterval;
-    unsigned long _lastUpdate;
+    protected:
+        uint8_t _pin;
+        int _pos;
+        int _updateInterval;
+        unsigned long _lastUpdate;
 
     public:
-        Servo(uint8_t pin, int interval, int minAng, int maxAng)
+        Servo(uint8_t pin, int interval, int pos)
         {
             _pin = pin;
             _updateInterval = interval;
-            _minAng = minAng;
-            _maxAng = maxAng;
-            _increment = 1;
+            _pos = pos;
+            _lastUpdate = 0;
+        }
+        virtual void Reset(void)=0;
+        virtual void Set(void)=0;
+
+        virtual void Update(uint8_t)=0;
+
+        uint8_t Pin()
+        {
+            return _pin;
+        }
+        int Pos()
+        {
+            return _pos;
+        }
+        int UpdateInterval()
+        {
+            return _updateInterval;
         }
 
-        void Reset(int ang)
-        {
-            _write_us(ang);
-        }
-
-        void Update()
-        {
-            if((millis() - _lastUpdate) > _updateInterval)
-            {
-                _lastUpdate = millis();
-                _pos += _increment;
-                _write_angle(_pos);
-                if ((_pos >= _maxAng) || (_pos <= _minAng)) // end of sweep
-                {
-                    // reverse direction
-                    _increment = -_increment;
-                }                
-            }
-        }
 
         // addr 0x01 means "control the number 1 servo by us"
         void _write_us(uint16_t us) {

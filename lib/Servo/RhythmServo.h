@@ -1,33 +1,28 @@
 #ifndef _H_RHYTHM_SERVO_
 #define _H_RHYTHM_SERVO_
 
-#include <Wire.h>
+#include "Servo.h"
 
-typedef enum{
+enum RotateDirection{
     Plus = 1,
     Minus = -1,
-} RotateDirection;
+};
 
-class RhythmServo
+class RhythmServo: public Servo
 {
-    uint8_t _pin;
-    int _pos;
     int _baseAng;
     int _targetAng;
     int _rotate_direction;
-    int _updateInterval;
-    unsigned long _lastUpdate;
 
     public:
         RhythmServo(uint8_t pin, int beatInterval, int baseAng, RotateDirection dir)
+         : Servo(pin, beatInterval, baseAng)
         {
-            _pin = pin;
-            _pos = _baseAng = baseAng;
+            _baseAng = baseAng;
             _rotate_direction = dir;
             _targetAng = baseAng + _rotate_direction * beatInterval / 10;;         // 0 -> 20 -> 0 can be 100msec
             // 動作速度：0.3秒/60度 https://www.amazon.co.jp/dp/B07TYYLMVY
             // _updateInterval = 5 * beatInterval / 10;  
-            _updateInterval = beatInterval;
             _lastUpdate = 0;
         }
 
@@ -72,11 +67,6 @@ class RhythmServo
             }
         }
 
-        int Pos()
-        {
-            return _pos;
-        }
-
         int BasePos()
         {
             return _baseAng;
@@ -91,29 +81,6 @@ class RhythmServo
         {
             return _rotate_direction;
         }
-
-        uint8_t Pin()
-        {
-            return _pin;
-        }
-
-        // addr 0x01 means "control the number 1 servo by us"
-        void _write_us(uint16_t us) {
-            Wire.beginTransmission(0x53);
-            Wire.write(0x00 | _pin);
-            Wire.write(us & 0x00ff);
-            Wire.write(us >> 8 & 0x00ff);
-            Wire.endTransmission();
-        }
-
-        // addr 0x11 means "control the number 1 servo by angle"
-        void _write_angle(uint8_t angle) {
-            
-            Wire.beginTransmission(0x53);
-            Wire.write(0x10 | _pin);
-            Wire.write(angle);
-            Wire.endTransmission();
-        }        
 };
 
 #endif // _H_RHYTHM_SERVO_
