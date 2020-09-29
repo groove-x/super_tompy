@@ -7,11 +7,12 @@
 
 // #define ENABLE_LCD
 
-typedef enum {
+enum State
+{
     Pause = 0,
     Play,
     NumState
-} State;
+};
 State state = Pause;
 
 int beatIndex = 0;
