@@ -9,21 +9,23 @@ namespace Rhythm
 {
     enum Pin
     {
-        DOGMA_HAND_R = 0, // スネア(瓦)
-        DOGMA_HAND_L = 1, // スネア
-        DOGMA_FOOT_R = 2, // バスドラ
-        DOGMA_FOOT_L = 3, // ハイハット
-        SIGMA_HAND_R = 4, // ギター
-        SIGMA_HAND_L = 5, // ギター
-        MAGMA_HAND_R = 6, // ベース
-        MAGMA_HAND_L = 7, // ベース
-        NUM
+        DOGMA_HAND_R = 1, // スネア(瓦)
+        DOGMA_HAND_L = 3, // スネア
+        DOGMA_FOOT_R = 5, // バスドラ
+        DOGMA_FOOT_L = 7, // ハイハット
+        SIGMA_HAND_R = 8, // ギター
+        SIGMA_HAND_L = 9, // ギター
+        MAGMA_HAND_R = 10, // ベース
+        MAGMA_HAND_L = 11, // ベース
+        NUM = 8
     };
 
     constexpr int beat_len = 16;
     constexpr int pattern_num = 9;
     constexpr int pattern_len = 20;
+    constexpr int pattern_len_for_1 = 2;
 
+    // 1が無音区間。スリープしたいときは無音区間を使う
     constexpr uint8_t beat[pattern_num][Pin::NUM][beat_len]
     = {{
         {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
@@ -92,7 +94,8 @@ namespace Rhythm
 
     // uint8_t patterns[pattern_len] = {0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1};
     // uint8_t patterns[pattern_len] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    constexpr uint8_t patterns[pattern_len] = {0, 1, 1, 1, 1, 2, 2, 2, 3, 1, 1, 1, 4, 1, 5, 6, 7, 7, 7, 8};
+    // constexpr uint8_t patterns[pattern_len] = {0, 1, 1, 1, 1, 2, 2, 2, 3, 1, 1, 1, 4, 1, 5, 6, 7, 7, 7, 8};
+    constexpr uint8_t patterns[pattern_len_for_1] = {0, 1}; // 1のみ繰り返し再生
     // constexpr uint8_t patterns[pattern_len] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     constexpr int beatInterval = (60. / 560) * 1000;  // 560 bpm and 107ms 
@@ -113,15 +116,20 @@ namespace Anim
 {
     enum Pin
     {
-        DOGMA_HEAD_PITCH = Rhythm::Pin::NUM, 
-        DOGMA_HEAD_ROLL = 9, 
-        SIGMA_HEAD_PITCH = 10, 
-        SIGMA_HEAD_ROLL = 11, 
-        NUM = SIGMA_HEAD_ROLL - Rhythm::Pin::NUM + 1
+        DOGMA_HEAD_PITCH = 0, 
+        DOGMA_HEAD_ROLL = 2, 
+        SIGMA_HEAD_PITCH = 4, 
+        SIGMA_HEAD_ROLL = 6, 
+        NUM = 4
     };
     constexpr int keyframe_len = 8;
 
-    KeyFrame keyframes[Anim::keyframe_len]
+    constexpr int dram_pitch_len = 8;
+    constexpr int dram_roll_len = 9;
+    constexpr int vocal_pitch_len = 9;
+    constexpr int vocal_roll_len = 9;
+
+    KeyFrame keyframes[keyframe_len]
      = { 
          {110, 200}, 
          {90, 200}, 
@@ -132,6 +140,37 @@ namespace Anim
          {120, 100}, 
          {90, 100}};
 
+    // == 頭大きく振る
+    // pitch 80(頭引く) ~ 145(頭下げる)
+    KeyFrame neck_pitch_frames[dram_pitch_len] = { 
+        {120,150 }, 
+        {80, 150 }, 
+        {120,150 }, 
+        {80, 150 } , 
+        {120,150 }, 
+        {80, 150 }, 
+        {120,150 }, 
+        {80, 5000 }, 
+        }; 
+
+    // roll 85(右) ~ 120(左)
+    KeyFrame neck_roll_frames[dram_roll_len] = { 
+        {100, 200} , 
+        {100, 200}, 
+        {100, 200}, 
+        {100, 200}, 
+        {100, 200} , 
+        {100, 200}, 
+        {100, 200}, 
+        {100, 200}, 
+        {100, 5000}, 
+        }; 
+
+    float map(int value, float start1, float stop1, float start2, float stop2)
+    {
+        return start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
+    }
 }
+
 
 #endif // _H_CONST_
