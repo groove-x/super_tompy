@@ -1,20 +1,27 @@
 #include <Arduino.h>
 #include <M5Stack.h>
+#include <SoftwareSerial.h>
+#include <DFRobotDFPlayerMini.h>
 
 #include <Const.h>
 #include <RhythmServo.h>
 #include <AnimationServo.h>
-#include <Const.h>
+
+
+SoftwareSerial mySoftwareSerial(25, 26); // RX, TX
+DFRobotDFPlayerMini myDFPlayer;
+void printDetail(uint8_t type, int value);
 
 // #define ENABLE_LCD
 
 enum State
 {
-    Pause = 0,
+    Stop = 0,
+    Pause,
     Play,
     NumState
 };
-State state = Pause;
+State state = Stop;
 
 int beatIndex = 0;
 int patternIndex = 0;
@@ -66,7 +73,8 @@ void servo_update()
         beatIndex = (beatIndex+1) % Rhythm::beat_len;
         if(beatIndex == 0){
             patternIndex = (patternIndex+1) % Rhythm::pattern_len; 
-            state = Pause;  // only play 1 pattern
+            // state = Pause;  // only play 1 pattern
+            lastUpdate = millis();
         }
     }
 
@@ -82,6 +90,22 @@ void servo_update()
 }
 
 void setup() {
+
+    mySoftwareSerial.begin(9600);
+
+    Serial.println();
+    Serial.println(F("DFRobot DFPlayer Mini Demo"));
+    Serial.println(F("Initializing DFPlayer ... (May take 3~5 seconds)"));
+    if (!myDFPlayer.begin(mySoftwareSerial)) {  //Use softwareSerial to communicate with mp3.
+        Serial.println(F("Unable to begin:"));
+        Serial.println(F("1.Please recheck the connection!"));
+        Serial.println(F("2.Please insert the SD card!"));
+        while(true){
+            delay(0); // Code to compatible with ESP8266 watch dog.
+        }
+    }
+    Serial.println(F("DFPlayer Mini online."));
+ 
     M5.begin(true, false, true);
     M5.Lcd.println("Super tompy");
     M5.Lcd.println("BtnA: Start/Pause");
@@ -92,6 +116,9 @@ void setup() {
 
     servo_reset();
     delay(1000);
+
+    myDFPlayer.volume(30);  //Set volume value. From 0 to 30
+    // myDFPlayer.playMp3Folder(1); //play specific mp3 in SD:/MP3/0001.mp3; File Name(0~65535)
 }
 
 void display()
@@ -111,6 +138,8 @@ void display()
             M5.Lcd.println("Play ");
         else if(state == Pause)
             M5.Lcd.println("Pause");        
+        else if(state == Stop)
+            M5.Lcd.println("Stop ");        
         M5.Lcd.printf("patternIndex: %3d, beatIndex: %3d\n", patternIndex, beatIndex);
         M5.Lcd.printf("beatInterval: %3d\n", Rhythm::beatInterval);
         for(int i=0; i<Anim::Pin::NUM;++i)
@@ -127,15 +156,26 @@ void input()
     M5.update();
     if(M5.BtnA.wasPressed())
     {
-        state = State((state + 1) % NumState);
-        if(state==Play)
+        if(state == Play)
         {
-          lastUpdate = millis();
+            state = Pause;
+            myDFPlayer.pause();
+        }else if(state == Stop)
+        {
+            state = Play;
+            lastUpdate = millis();
+            myDFPlayer.playMp3Folder(1);
+        }else if(state == Pause)
+        {
+            state = Play;
+            lastUpdate = millis();
+            myDFPlayer.play();
         }
     }
     if(M5.BtnB.wasPressed())
     {
         state = Pause;
+        myDFPlayer.pause();
         if(lastWasReset)
             servo_set();
         else
@@ -144,10 +184,21 @@ void input()
     }
     if(M5.BtnC.wasPressed())
     {
-        state = Pause;
+        state = Stop;
+        myDFPlayer.pause();
         servo_reset();
         beatIndex = 0;
         patternIndex = 0;
+    }
+
+    if (myDFPlayer.available()) {
+        uint8_t type = myDFPlayer.readType();
+        int value = myDFPlayer.read();
+        printDetail(type, value); //Print the detail message from DFPlayer to handle different errors and states.
+        if(type == DFPlayerPlayFinished)
+        {
+            myDFPlayer.next();
+        }
     }
 }
 
@@ -161,12 +212,73 @@ void update()
 
 void loop()
 {
-// #ifdef ENABLE_LCD
+#ifdef ENABLE_LCD
     // if (state != Play)
     // {
         display();
     // }
-// #endif
+#endif
     input();
     update();
+}
+
+void printDetail(uint8_t type, int value){
+  switch (type) {
+    case TimeOut:
+      Serial.println(F("Time Out!"));
+      break;
+    case WrongStack:
+      Serial.println(F("Stack Wrong!"));
+      break;
+    case DFPlayerCardInserted:
+      Serial.println(F("Card Inserted!"));
+      break;
+    case DFPlayerCardRemoved:
+      Serial.println(F("Card Removed!"));
+      break;
+    case DFPlayerCardOnline:
+      Serial.println(F("Card Online!"));
+      break;
+    case DFPlayerUSBInserted:
+      Serial.println("USB Inserted!");
+      break;
+    case DFPlayerUSBRemoved:
+      Serial.println("USB Removed!");
+      break;
+    case DFPlayerPlayFinished:
+      Serial.print(F("Number:"));
+      Serial.print(value);
+      Serial.println(F(" Play Finished!"));
+      break;
+    case DFPlayerError:
+      Serial.print(F("DFPlayerError:"));
+      switch (value) {
+        case Busy:
+          Serial.println(F("Card not found"));
+          break;
+        case Sleeping:
+          Serial.println(F("Sleeping"));
+          break;
+        case SerialWrongStack:
+          Serial.println(F("Get Wrong Stack"));
+          break;
+        case CheckSumNotMatch:
+          Serial.println(F("Check Sum Not Match"));
+          break;
+        case FileIndexOut:
+          Serial.println(F("File Index Out of Bound"));
+          break;
+        case FileMismatch:
+          Serial.println(F("Cannot Find File"));
+          break;
+        case Advertise:
+          Serial.println(F("In Advertise"));
+          break;
+        default:
+          break;
+      }
+      break;
+    default:
+      break;
+  }
 }

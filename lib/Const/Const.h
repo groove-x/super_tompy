@@ -94,8 +94,8 @@ namespace Rhythm
 
     // uint8_t patterns[pattern_len] = {0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1};
     // uint8_t patterns[pattern_len] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    // constexpr uint8_t patterns[pattern_len] = {0, 1, 1, 1, 1, 2, 2, 2, 3, 1, 1, 1, 4, 1, 5, 6, 7, 7, 7, 8};
-    constexpr uint8_t patterns[pattern_len_for_1] = {0, 1}; // 1のみ繰り返し再生
+    constexpr uint8_t patterns[pattern_len] = {0, 1, 1, 1, 1, 2, 2, 2, 3, 1, 1, 1, 4, 1, 5, 6, 7, 7, 7, 8};
+    // constexpr uint8_t patterns[pattern_len_for_1] = {0, 1}; // 1のみ繰り返し再生
     // constexpr uint8_t patterns[pattern_len] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     constexpr int beatInterval = (60. / 560) * 1000;  // 560 bpm and 107ms 
