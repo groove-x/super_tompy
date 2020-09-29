@@ -90,8 +90,8 @@ void servo_update()
 }
 
 void setup() {
-
     mySoftwareSerial.begin(9600);
+    M5.begin(true, false, true);
 
     Serial.println();
     Serial.println(F("DFRobot DFPlayer Mini Demo"));
@@ -101,12 +101,11 @@ void setup() {
         Serial.println(F("1.Please recheck the connection!"));
         Serial.println(F("2.Please insert the SD card!"));
         while(true){
-            delay(0); // Code to compatible with ESP8266 watch dog.
+            delay(1); // Code to compatible with ESP8266 watch dog.
         }
     }
     Serial.println(F("DFPlayer Mini online."));
  
-    M5.begin(true, false, true);
     M5.Lcd.println("Super tompy");
     M5.Lcd.println("BtnA: Start/Pause");
     M5.Lcd.println("BtnB: Pause and set base/target position");
