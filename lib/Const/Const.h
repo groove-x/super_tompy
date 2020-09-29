@@ -6,6 +6,7 @@
 
 namespace Music
 {
+<<<<<<< HEAD
     enum Track 
     {
         MainSound=1,       // 演奏曲
@@ -29,12 +30,19 @@ namespace Music
         constexpr int pattern_num = 23;
         constexpr int pattern_len = 27;
         constexpr int pattern_len_for_1 = 2;
+=======
+    constexpr int beat_len = 16;
+    constexpr int pattern_num = 23;
+    constexpr int pattern_len = 27;
+    constexpr int pattern_len_for_1 = 2;
+>>>>>>> update music data and add chord servo
 
         // uint8_t patterns[pattern_len] = {0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1};
         // uint8_t patterns[pattern_len] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         constexpr uint8_t patterns[pattern_len] = {0, 1, 2, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 14, 16, 17, 18, 19, 20, 21, 18, 22};
         // constexpr uint8_t patterns[pattern_len_for_1] = {0, 1}; // 1のみ繰り返し再生
         // constexpr uint8_t patterns[pattern_len] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+<<<<<<< HEAD
     }
 
     namespace Riff{
@@ -43,6 +51,17 @@ namespace Music
         constexpr uint8_t patterns[pattern_len] = {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1};
     }
 
+=======
+
+        constexpr int beatInterval = (60. / 560) * 1000;  // 560 bpm and 107ms 
+        // int beatInterval = (60. / 120.) / 4. * 1000; // 120 bpm -> 2 beat / 1sec -> 500msec / 4つ打ち (500 / 4) = 125
+        // int beatInterval = (60. / 85.) / 4. * 1000;  // 85 bpm 
+        // int beatInterval = (60. / 81.4) / 4. * 1000; // 81.4 bpm 
+        // int beatInterval = (60. / 60.) / 4. * 1000;  // 60 bpm
+        // int beatInterval = (60. / 150.) / 4. * 1000;  // 60 bpm
+        // int beatInterval = (60. / 75.) / 4. * 1000;  // 60 bpm
+        // int beatInterval = (60. / 30.) / 4. * 1000;  // 30 bpm
+>>>>>>> update music data and add chord servo
 
     namespace Chord
     {
@@ -53,7 +72,11 @@ namespace Music
             NUM = 2
         };
 
+<<<<<<< HEAD
        constexpr uint8_t main_beat[Main::pattern_num][Pin::NUM][beat_len]
+=======
+       constexpr uint8_t beat[pattern_num][Pin::NUM][beat_len]
+>>>>>>> update music data and add chord servo
         = {{ //0 : 0
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // ChordServo
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}  // ChordServo
@@ -125,6 +148,7 @@ namespace Music
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // ChordServo
         }};
 
+<<<<<<< HEAD
         constexpr uint8_t getMainBeat(int patternIndex, int servo_index, int beat_index){
             return main_beat[Main::patterns[patternIndex]][servo_index][beat_index];
         }    
@@ -140,6 +164,10 @@ namespace Music
 
         constexpr uint8_t getRiffBeat(int patternIndex, int servo_index, int beat_index){
             return riff_beat[Riff::patterns[patternIndex]][servo_index][beat_index];
+=======
+        constexpr uint8_t getBeat(int patternIndex, int servo_index, int beat_index){
+            return beat[patterns[patternIndex]][servo_index][beat_index];
+>>>>>>> update music data and add chord servo
         }    
     }
 
@@ -156,13 +184,20 @@ namespace Music
             NUM = 6
         };
 
+<<<<<<< HEAD
         constexpr uint8_t main_beat[Main::pattern_num][Pin::NUM][beat_len]
+=======
+        constexpr uint8_t beat[pattern_num][Pin::NUM][beat_len]
+>>>>>>> update music data and add chord servo
         = {{ //0 : 0
             {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0},
             {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0},
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+<<<<<<< HEAD
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+=======
+>>>>>>> update music data and add chord servo
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
         },{ //1, 3: 1
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -320,6 +355,7 @@ namespace Music
             {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0},
         }};
 
+<<<<<<< HEAD
         constexpr uint8_t getMainBeat(int patternIndex, int servo_index, int beat_index){
             return main_beat[Main::patterns[patternIndex]][servo_index][beat_index];
         }    
@@ -343,6 +379,10 @@ namespace Music
 
         constexpr uint8_t getRiffBeat(int patternIndex, int servo_index, int beat_index){
             return riff_beat[Riff::patterns[patternIndex]][servo_index][beat_index];
+=======
+        constexpr uint8_t getBeat(int patternIndex, int servo_index, int beat_index){
+            return beat[patterns[patternIndex]][servo_index][beat_index];
+>>>>>>> update music data and add chord servo
         }    
     }
 }
@@ -360,7 +400,6 @@ namespace Anim
     };
     constexpr int keyframe_len = 8;
 
-    constexpr int dram_pitch_len = 8;
     constexpr int dram_roll_len = 9;
     constexpr int vocal_pitch_len = 9;
     constexpr int vocal_roll_len = 9;
@@ -378,28 +417,123 @@ namespace Anim
 
     // == 頭大きく振る
     // pitch 80(頭引く) ~ 145(頭下げる)
+    
+    constexpr int dram_pitch_len = 83;
+
+    constexpr int front_head_duration = 170;
+    constexpr int back_head_duration = 230;
+
+    constexpr int low_front_head_angle= 115;
+    constexpr int low_back_head_angle= 140;
+
+    constexpr int low_front_head_duration = 170;
+    constexpr int low_back_head_duration = 230;
     KeyFrame neck_pitch_frames[dram_pitch_len] = { 
-        {120,150 }, 
-        {80, 150 }, 
-        {120,150 }, 
-        {80, 150 } , 
-        {120,150 }, 
-        {80, 150 }, 
-        {120,150 }, 
-        {80, 5000 }, 
+        {90, 200}, 
+        {110, 100}, 
+        {120, 120},//  
+        {80, 100}, 
+        {90, 150},// 
+        {110, 100}, 
+        {120, 120},// 
+        {80, 100},
+        {90, 150},//
+        {110, 100}, 
+        {115, 100}, 
+        {120, 200},// 
+        {70, 100}, 
+        {75, 100}, 
+        {80, 250},// 
+        {140, 100}, //大きく降る
+        {145, 100}, //大きく降る
+        {135, 150}, 
+        {110, 150}, //頭戻す
+        {100, 300}, 
+        {120, 150}, // ここまでで2940
+        {80, 160},
+        {90, back_head_duration - 160}, 
+        {115, 120}, 
+        {125, front_head_duration - 120}, 
+        {90, 160}, // ワンサイクル 
+        {100, back_head_duration - 160}, // ワンサイクル 
+        {115, 120}, 
+        {120, front_head_duration - 120}, 
+        {80, 160}, // ワンサイクル 
+        {90, back_head_duration -160}, 
+        {115, 120}, 
+        {125, front_head_duration - 120}, 
+        {90, 160}, // ワンサイクル 
+        {100, back_head_duration - 160}, // ワンサイクル 
+        {115, 120}, 
+        {120, front_head_duration - 120}, 
+        {80, 160}, // ワンサイクル 
+        {90, back_head_duration - 160}, 
+        {115, 120}, 
+        {125, front_head_duration -120}, // ここまでで5500
+        {100, 150}, 
+        {90, back_head_duration}, 
+        {135, 200}, //大きく降る
+        {120, 150}, // ここまで6230
+        {100,back_head_duration}, // ワンサイクル 
+        {120, front_head_duration}, 
+        {90, back_head_duration}, 
+        {125, front_head_duration}, 
+        {100, back_head_duration}, // ワンサイクル
+        {120, front_head_duration}, 
+        {90, back_head_duration}, 
+        {125, front_head_duration}, 
+        {100, back_head_duration}, // ワンサイクル
+        {120, front_head_duration}, 
+        {90, back_head_duration}, 
+        {125, front_head_duration}, 
+        {100, back_head_duration}, // ワンサイクル // ここまで8860
+        {low_back_head_angle, low_back_head_duration}, // 下向きパート
+        {low_front_head_angle, low_front_head_duration}, 
+        {low_back_head_angle, low_back_head_duration}, 
+        {low_front_head_angle, low_front_head_duration}, 
+        {low_back_head_angle, low_back_head_duration}, 
+        {low_front_head_angle, low_front_head_duration}, 
+        {low_back_head_angle, low_back_head_duration}, 
+        {low_front_head_angle, low_front_head_duration}, 
+        {low_back_head_angle, low_back_head_duration}, 
+        {low_front_head_angle, low_front_head_duration}, 
+        {low_back_head_angle, low_back_head_duration}, 
+        {low_front_head_angle, low_front_head_duration}, 
+        {low_back_head_angle, low_back_head_duration}, // 下向きパート
+        {low_front_head_angle, low_front_head_duration}, 
+        {low_back_head_angle, low_back_head_duration}, 
+        {low_front_head_angle, low_front_head_duration}, 
+        {low_back_head_angle, low_back_head_duration}, 
+        {low_front_head_angle, low_front_head_duration}, 
+        {low_back_head_angle, low_back_head_duration}, 
+        {low_front_head_angle, low_front_head_duration}, 
+        {low_back_head_angle, low_back_head_duration}, 
+        {low_front_head_angle, low_front_head_duration}, 
+        {low_back_head_angle, low_back_head_duration}, 
+        {low_front_head_angle, low_front_head_duration}, 
+        {low_front_head_angle, 5000}, 
         }; 
 
     // roll 85(右) ~ 120(左)
     KeyFrame neck_roll_frames[dram_roll_len] = { 
-        {100, 200} , 
+        {100, 55000}, 
+        {115, 220} , 
+        {90, 250}, 
+        {115, 220}, 
+        {90, 250}, 
+        {115, 220} , 
+        {90, 250}, 
         {100, 200}, 
         {100, 200}, 
-        {100, 200}, 
-        {100, 200} , 
-        {100, 200}, 
-        {100, 200}, 
-        {100, 200}, 
-        {100, 5000}, 
+        // {100, 220} , 
+        // {100, 250}, 
+        // {100, 220}, 
+        // {100, 250}, 
+        // {100, 220} , 
+        // {100, 250}, 
+        // {100, 200}, 
+        // {100, 200}, 
+        // {100, 5000}, 
         }; 
 
     float map(int value, float start1, float stop1, float start2, float stop2)
