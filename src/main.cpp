@@ -19,11 +19,24 @@ void printDetail(uint8_t type, int value);
 enum State
 {
     Stop = 0,
+    // for アニメーション開発用モード
     Pause,
-    Play,
-    NumState
+    TestPlay,
+    // for 試技用モード
+    Playing,      // 演奏中
+    PlayingRiff,  // 終奏（アーム移動待ち)
+    Waiting,      // 瓦割り待ち
+    Applauding,   // 拍手喝采を浴びてる
 };
 State state = Stop;
+
+enum Mode
+{
+    Develop = 0,
+    Demo1,        // 試技1回目
+    Demo2         // 試技2回目
+};
+Mode mode = Demo1;
 
 int beatIndex = 0;
 int patternIndex = 0;
@@ -84,23 +97,43 @@ void servo_update()
         lastUpdate = current_time;
         beatIndex = (beatIndex+1) % beat_len;
         if(beatIndex == 0){
-            patternIndex = (patternIndex+1) % Main::pattern_len; 
+            if(state == PlayingRiff)
+                patternIndex = (patternIndex+1) % Riff::pattern_len; 
+            else
+                patternIndex = (patternIndex+1) % Main::pattern_len; 
             // state = Pause;  // only play 1 pattern
             lastUpdate = millis();
         }
     }
 
-    for(int i=0; i<Swing::Pin::NUM;++i)
+    if(state == PlayingRiff)
     {
-        rhythm_servos[i].Update(Swing::getMainBeat(patternIndex, i, beatIndex));
-    }
-    for(int i=0; i<Chord::Pin::NUM;++i)
-    {
-        chord_servos[i].Update(Chord::getMainBeat(patternIndex, i, beatIndex));
-    }
-    for(int i=0; i<Anim::Pin::NUM;++i)
-    {
-        anim_servos[i].Update();
+        for(int i=0; i<Swing::Pin::NUM;++i)
+        {
+            rhythm_servos[i].Update(Swing::getRiffBeat(patternIndex, i, beatIndex));
+        }
+        for(int i=0; i<Chord::Pin::NUM;++i)
+        {
+            chord_servos[i].Update(Chord::getRiffBeat(patternIndex, i, beatIndex));
+        }
+        for(int i=0; i<Anim::Pin::NUM;++i)
+        {
+            anim_servos[i].Update();
+        }
+
+    }else{
+        for(int i=0; i<Swing::Pin::NUM;++i)
+        {
+            rhythm_servos[i].Update(Swing::getMainBeat(patternIndex, i, beatIndex));
+        }
+        for(int i=0; i<Chord::Pin::NUM;++i)
+        {
+            chord_servos[i].Update(Chord::getMainBeat(patternIndex, i, beatIndex));
+        }
+        for(int i=0; i<Anim::Pin::NUM;++i)
+        {
+            anim_servos[i].Update();
+        }
     }
 }
 
@@ -121,18 +154,29 @@ void setup() {
     }
     Serial.println(F("DFPlayer Mini online."));
  
-    M5.Lcd.println("Super tompy");
-    M5.Lcd.println("BtnA: Start/Pause");
-    M5.Lcd.println("BtnB: Pause and set base/target position");
-    M5.Lcd.println("BtnC: Pause and reset");
+    M5.Lcd.setTextSize(2);
+    switch(mode){
+        case Develop:
+            M5.Lcd.printf("Super tompy: Develop\n\n");
+            M5.Lcd.println("BtnA: Start/Pause");
+            M5.Lcd.println("BtnB: Set base/target pos");
+            M5.Lcd.println("BtnC: Pause and reset");
+            break;
+        case Demo1:
+        case Demo2:
+            M5.Lcd.printf("Super tompy: Demo%d\n", mode);
+    }
 
     Wire.begin(21, 22, 100000);
 
     servo_reset();
     delay(1000);
 
-    myDFPlayer.volume(30);  //Set volume value. From 0 to 30
-    // myDFPlayer.playMp3Folder(1); //play specific mp3 in SD:/MP3/0001.mp3; File Name(0~65535)
+    myDFPlayer.volume(10);  //Set volume value. From 0 to 30
+    if(mode == Demo2)
+    {
+        myDFPlayer.playMp3Folder(AncolSound); //play specific mp3 in SD:/MP3/0001.mp3; File Name(0~65535)
+    }
 }
 
 void display()
@@ -148,8 +192,8 @@ void display()
             M5.Lcd.printf("%d: %+4d, %d, %d, %d\n", rhythm_servos[i].Pin(), rhythm_servos[i].Pos(), 
                 rhythm_servos[i].BasePos(), rhythm_servos[i].TargetAng(), rhythm_servos[i].RotateDirection());
         }
-        if (state == Play)
-            M5.Lcd.println("Play ");
+        if (state == TestPlay)
+            M5.Lcd.println("TestPlay ");
         else if(state == Pause)
             M5.Lcd.println("Pause");        
         else if(state == Stop)
@@ -168,41 +212,76 @@ void display()
 void input()
 {
     M5.update();
-    if(M5.BtnA.wasPressed())
+
+    //TODO: 実際に接続するUARTのポートを設定する
+    unsigned char readBuffer[] = " ";
+    int serialLength = Serial.available();
+    if(serialLength > 0){
+      Serial.readBytes(readBuffer, serialLength);
+      readBuffer[serialLength] = '\0';
+      Serial.printf("%s\n", readBuffer);
+    }
+
+    if(mode == Develop)
     {
-        if(state == Play)
+        if(M5.BtnA.wasPressed() || readBuffer[0]=='1')
+        {
+            if(state == TestPlay)
+            {
+                state = Pause;
+                myDFPlayer.pause();
+            }else if(state == Stop)
+            {
+                state = TestPlay;
+                lastUpdate = millis();
+                myDFPlayer.playMp3Folder(1);
+            }else if(state == Pause)
+            {
+                state = TestPlay;
+                lastUpdate = millis();
+                myDFPlayer.play();
+            }
+        }
+        if(M5.BtnB.wasPressed() || readBuffer[0]=='2')
         {
             state = Pause;
             myDFPlayer.pause();
-        }else if(state == Stop)
-        {
-            state = Play;
-            lastUpdate = millis();
-            myDFPlayer.playMp3Folder(1);
-        }else if(state == Pause)
-        {
-            state = Play;
-            lastUpdate = millis();
-            myDFPlayer.play();
+            if(lastWasReset)
+                servo_set();
+            else
+                servo_reset();
+            lastWasReset = !lastWasReset;
         }
-    }
-    if(M5.BtnB.wasPressed())
-    {
-        state = Pause;
-        myDFPlayer.pause();
-        if(lastWasReset)
-            servo_set();
-        else
+        if(M5.BtnC.wasPressed() || readBuffer[0]=='3')
+        {
+            state = Stop;
+            myDFPlayer.pause();
             servo_reset();
-        lastWasReset = !lastWasReset;
-    }
-    if(M5.BtnC.wasPressed())
+            beatIndex = 0;
+            patternIndex = 0;
+        }
+    }else if(mode == Demo1 || mode == Demo2)
     {
-        state = Stop;
-        myDFPlayer.pause();
-        servo_reset();
-        beatIndex = 0;
-        patternIndex = 0;
+        if(state == Stop && readBuffer[0]=='1')
+        {// stop -> play 演奏を開始する
+            state = Playing;
+            lastUpdate = millis();
+            myDFPlayer.playMp3Folder(MainSound);
+        }
+        if(state == PlayingRiff && readBuffer[0]=='2')
+        {// riff -> hold 演奏を止めて動かない
+            state = Waiting;
+            myDFPlayer.pause();
+        }
+        if(state == Waiting && readBuffer[0]=='3')
+        {// hold -> approuse 歓声があがって動かない
+            state = Applauding;
+            if(mode == Demo1)
+                myDFPlayer.playMp3Folder(ApplauseSound1);
+            else if(mode == Demo2)
+                myDFPlayer.playMp3Folder(ApplauseSound2);
+
+        }
     }
 
     if (myDFPlayer.available()) {
@@ -211,14 +290,24 @@ void input()
         printDetail(type, value); //Print the detail message from DFPlayer to handle different errors and states.
         if(type == DFPlayerPlayFinished)
         {
-            myDFPlayer.next();
+            if(state == Playing){
+                // 終奏を繰り返しつつ腕の準備を待つ
+                myDFPlayer.playMp3Folder(RiffSound);
+                state = PlayingRiff;
+                servo_reset();
+                beatIndex = 0;
+                patternIndex = 0;
+            }else if(state == PlayingRiff)
+            {
+                myDFPlayer.playMp3Folder(RiffSound);
+            }
         }
     }
 }
 
 void update()
 {
-    if (state == Play)
+    if (state == TestPlay || state == Playing || state == PlayingRiff)
     {
         servo_update();
     }
@@ -227,7 +316,7 @@ void update()
 void loop()
 {
 #ifdef ENABLE_LCD
-    // if (state != Play)
+    // if (state != TestPlay)
     // {
         display();
     // }
