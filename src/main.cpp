@@ -131,7 +131,7 @@ void setup() {
     servo_reset();
     delay(1000);
 
-    myDFPlayer.volume(30);  //Set volume value. From 0 to 30
+    myDFPlayer.volume(10);  //Set volume value. From 0 to 30
     // myDFPlayer.playMp3Folder(1); //play specific mp3 in SD:/MP3/0001.mp3; File Name(0~65535)
 }
 
@@ -168,7 +168,15 @@ void display()
 void input()
 {
     M5.update();
-    if(M5.BtnA.wasPressed())
+
+    unsigned char readBuffer[] = " ";
+    int serialLength = Serial.available();
+    if(serialLength > 0){
+      Serial.readBytes(readBuffer, serialLength);
+      readBuffer[serialLength] = '\0';
+    }
+
+    if(M5.BtnA.wasPressed() || readBuffer[0]=='s')
     {
         if(state == Play)
         {
@@ -186,7 +194,7 @@ void input()
             myDFPlayer.play();
         }
     }
-    if(M5.BtnB.wasPressed())
+    if(M5.BtnB.wasPressed() || readBuffer[0]=='p')
     {
         state = Pause;
         myDFPlayer.pause();
@@ -196,7 +204,7 @@ void input()
             servo_reset();
         lastWasReset = !lastWasReset;
     }
-    if(M5.BtnC.wasPressed())
+    if(M5.BtnC.wasPressed() || readBuffer[0]=='t')
     {
         state = Stop;
         myDFPlayer.pause();
