@@ -36,7 +36,7 @@ enum Mode
     Demo1,        // 試技1回目
     Demo2         // 試技2回目
 };
-Mode mode = Demo2;
+Mode mode = Demo1;
 
 int beatIndex = 0;
 int patternIndex = 0;
@@ -97,23 +97,43 @@ void servo_update()
         lastUpdate = current_time;
         beatIndex = (beatIndex+1) % beat_len;
         if(beatIndex == 0){
-            patternIndex = (patternIndex+1) % Main::pattern_len; 
+            if(state == PlayingRiff)
+                patternIndex = (patternIndex+1) % Riff::pattern_len; 
+            else
+                patternIndex = (patternIndex+1) % Main::pattern_len; 
             // state = Pause;  // only play 1 pattern
             lastUpdate = millis();
         }
     }
 
-    for(int i=0; i<Swing::Pin::NUM;++i)
+    if(state == PlayingRiff)
     {
-        rhythm_servos[i].Update(Swing::getMainBeat(patternIndex, i, beatIndex));
-    }
-    for(int i=0; i<Chord::Pin::NUM;++i)
-    {
-        chord_servos[i].Update(Chord::getMainBeat(patternIndex, i, beatIndex));
-    }
-    for(int i=0; i<Anim::Pin::NUM;++i)
-    {
-        anim_servos[i].Update();
+        for(int i=0; i<Swing::Pin::NUM;++i)
+        {
+            rhythm_servos[i].Update(Swing::getRiffBeat(patternIndex, i, beatIndex));
+        }
+        for(int i=0; i<Chord::Pin::NUM;++i)
+        {
+            chord_servos[i].Update(Chord::getRiffBeat(patternIndex, i, beatIndex));
+        }
+        for(int i=0; i<Anim::Pin::NUM;++i)
+        {
+            anim_servos[i].Update();
+        }
+
+    }else{
+        for(int i=0; i<Swing::Pin::NUM;++i)
+        {
+            rhythm_servos[i].Update(Swing::getMainBeat(patternIndex, i, beatIndex));
+        }
+        for(int i=0; i<Chord::Pin::NUM;++i)
+        {
+            chord_servos[i].Update(Chord::getMainBeat(patternIndex, i, beatIndex));
+        }
+        for(int i=0; i<Anim::Pin::NUM;++i)
+        {
+            anim_servos[i].Update();
+        }
     }
 }
 
@@ -193,6 +213,7 @@ void input()
 {
     M5.update();
 
+    //TODO: 実際に接続するUARTのポートを設定する
     unsigned char readBuffer[] = " ";
     int serialLength = Serial.available();
     if(serialLength > 0){
@@ -242,23 +263,19 @@ void input()
     }else if(mode == Demo1 || mode == Demo2)
     {
         if(state == Stop && readBuffer[0]=='1')
-        {// stop -> play
+        {// stop -> play 演奏を開始する
             state = Playing;
             lastUpdate = millis();
             myDFPlayer.playMp3Folder(MainSound);
         }
         if(state == PlayingRiff && readBuffer[0]=='2')
-        {// riff -> hold
+        {// riff -> hold 演奏を止めて動かない
             state = Waiting;
-            //TODO
-            // stop music and stop motion
             myDFPlayer.pause();
-            myDFPlayer.disableLoop();
         }
         if(state == Waiting && readBuffer[0]=='3')
-        {// hold -> approuse
+        {// hold -> approuse 歓声があがって動かない
             state = Applauding;
-            // play applause music and keep pause
             if(mode == Demo1)
                 myDFPlayer.playMp3Folder(ApplauseSound1);
             else if(mode == Demo2)
@@ -274,13 +291,15 @@ void input()
         if(type == DFPlayerPlayFinished)
         {
             if(state == Playing){
-                // play riff and riff motion
+                // 終奏を繰り返しつつ腕の準備を待つ
                 myDFPlayer.playMp3Folder(RiffSound);
-                myDFPlayer.enableLoop();
                 state = PlayingRiff;
                 servo_reset();
                 beatIndex = 0;
                 patternIndex = 0;
+            }else if(state == PlayingRiff)
+            {
+                myDFPlayer.playMp3Folder(RiffSound);
             }
         }
     }
