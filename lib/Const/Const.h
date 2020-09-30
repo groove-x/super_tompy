@@ -418,7 +418,7 @@ namespace Anim
     // == 頭大きく振る
     // pitch 80(頭引く) ~ 145(頭下げる)
     
-    constexpr int dram_pitch_len = 83;
+    constexpr int dram_pitch_len = 129;
 
     constexpr int front_head_duration = 170;
     constexpr int back_head_duration = 230;
@@ -429,6 +429,7 @@ namespace Anim
     constexpr int low_front_head_duration = 170;
     constexpr int low_back_head_duration = 230;
     KeyFrame neck_pitch_frames[dram_pitch_len] = { 
+        // {90, 200}, 
         {90, 200}, 
         {110, 100}, 
         {120, 120},//  
@@ -511,7 +512,53 @@ namespace Anim
         {low_front_head_angle, low_front_head_duration}, 
         {low_back_head_angle, low_back_head_duration}, 
         {low_front_head_angle, low_front_head_duration}, 
-        {low_front_head_angle, 5000}, 
+        {low_back_head_angle, low_back_head_duration}, 
+        {low_front_head_angle, low_front_head_duration}, 
+        {low_back_head_angle, low_back_head_duration}, 
+        {low_front_head_angle, low_front_head_duration}, 
+        {low_back_head_angle, low_back_head_duration}, 
+        {low_front_head_angle, low_front_head_duration}, 
+        {70, 100}, 
+        {75, 100}, 
+        {80, 250},// 
+        {140, 100}, //大きく降る
+        {145, 100}, //大きく降る
+        {135, 150}, 
+        {110, 150}, //頭戻す
+        {100,back_head_duration}, // ワンサイクル 
+        {120, front_head_duration}, 
+        {90, back_head_duration}, 
+        {125, front_head_duration}, 
+        {100, back_head_duration}, // ワンサイクル
+        {120, front_head_duration}, 
+        {90, back_head_duration}, 
+        {125, front_head_duration}, 
+        {100, back_head_duration}, // ワンサイクル
+        {120, front_head_duration}, 
+        {90, back_head_duration}, 
+        {125, front_head_duration}, 
+        {100,back_head_duration}, // ワンサイクル 
+        {120, front_head_duration}, 
+        {90, back_head_duration}, 
+        {125, front_head_duration}, 
+        {100, back_head_duration}, // ワンサイクル
+        {120, front_head_duration}, 
+        {90, back_head_duration}, 
+        {125, front_head_duration}, 
+        {100, back_head_duration}, // ワンサイクル
+        {120, front_head_duration}, 
+        {90, back_head_duration}, 
+        {125, front_head_duration}, 
+        {100, back_head_duration}, // ワンサイクル
+        {120, front_head_duration}, 
+        {90, back_head_duration}, 
+        {125, front_head_duration}, 
+        {100, back_head_duration}, // ワンサイクル
+        {120, front_head_duration}, 
+        {90, back_head_duration}, 
+        {125, front_head_duration}, 
+        {100, back_head_duration}, // ワンサイクル // ここまで8860
+        {100, 500}, // ワンサイクル // ここまで8860
         }; 
 
     // roll 85(右) ~ 120(左)
