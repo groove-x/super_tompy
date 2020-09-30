@@ -6,6 +6,15 @@
 
 namespace Music
 {
+    enum Track 
+    {
+        MainSound=1,       // 演奏曲
+        RiffSound=2,       // 瓦割る準備をしている時の曲
+        ApplauseSound1=3,  // 試技1回目の後の歓声
+        ApplauseSound2=4,  // 試技2回目の後の歓声
+        AncolSound=5,      // アンコール(試技2回目の開始で流れる)
+    };
+
     constexpr int beat_len = 16;
     constexpr int beatInterval = (60. / 560) * 1000;  // 560 bpm and 107ms 
     // int beatInterval = (60. / 120.) / 4. * 1000; // 120 bpm -> 2 beat / 1sec -> 500msec / 4つ打ち (500 / 4) = 125

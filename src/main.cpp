@@ -19,23 +19,24 @@ void printDetail(uint8_t type, int value);
 enum State
 {
     Stop = 0,
-    // for develop
+    // for アニメーション開発用モード
     Pause,
     TestPlay,
-    // for demo
-    Play,  // band play
-    Riff,  // wait arm moving
-    Hold,  // wait kawara-wari
-    Applause, // after kawara-wari
+    // for 試技用モード
+    Playing,      // 演奏中
+    PlayingRiff,  // 終奏（アーム移動待ち)
+    Waiting,      // 瓦割り待ち
+    Applauding,   // 拍手喝采を浴びてる
 };
 State state = Stop;
 
 enum Mode
 {
     Develop = 0,
-    Demo,
+    Demo1,        // 試技1回目
+    Demo2         // 試技2回目
 };
-Mode mode = Develop;
+Mode mode = Demo2;
 
 int beatIndex = 0;
 int patternIndex = 0;
@@ -133,10 +134,18 @@ void setup() {
     }
     Serial.println(F("DFPlayer Mini online."));
  
-    M5.Lcd.println("Super tompy");
-    M5.Lcd.println("BtnA: Start/Pause");
-    M5.Lcd.println("BtnB: Pause and set base/target position");
-    M5.Lcd.println("BtnC: Pause and reset");
+    M5.Lcd.setTextSize(2);
+    switch(mode){
+        case Develop:
+            M5.Lcd.printf("Super tompy: Develop\n\n");
+            M5.Lcd.println("BtnA: Start/Pause");
+            M5.Lcd.println("BtnB: Set base/target pos");
+            M5.Lcd.println("BtnC: Pause and reset");
+            break;
+        case Demo1:
+        case Demo2:
+            M5.Lcd.printf("Super tompy: Demo%d\n", mode);
+    }
 
     Wire.begin(21, 22, 100000);
 
@@ -144,7 +153,10 @@ void setup() {
     delay(1000);
 
     myDFPlayer.volume(10);  //Set volume value. From 0 to 30
-    // myDFPlayer.playMp3Folder(1); //play specific mp3 in SD:/MP3/0001.mp3; File Name(0~65535)
+    if(mode == Demo2)
+    {
+        myDFPlayer.playMp3Folder(AncolSound); //play specific mp3 in SD:/MP3/0001.mp3; File Name(0~65535)
+    }
 }
 
 void display()
@@ -227,27 +239,31 @@ void input()
             beatIndex = 0;
             patternIndex = 0;
         }
-    }else if(mode == Demo)
+    }else if(mode == Demo1 || mode == Demo2)
     {
-        if(readBuffer[0]=='1')
+        if(state == Stop && readBuffer[0]=='1')
         {// stop -> play
-            state = Play;
+            state = Playing;
             lastUpdate = millis();
-            myDFPlayer.playMp3Folder(1);
+            myDFPlayer.playMp3Folder(MainSound);
         }
-        if(readBuffer[0]=='2')
+        if(state == PlayingRiff && readBuffer[0]=='2')
         {// riff -> hold
-            state = Hold;
-            myDFPlayer.pause();
+            state = Waiting;
             //TODO
-            // stop music and motion
+            // stop music and stop motion
             myDFPlayer.pause();
+            myDFPlayer.disableLoop();
         }
-        if(readBuffer[0]=='3')
+        if(state == Waiting && readBuffer[0]=='3')
         {// hold -> approuse
-            state = Applause;
-            // play applause music and hold pause
-            myDFPlayer.playMp3Folder(3);
+            state = Applauding;
+            // play applause music and keep pause
+            if(mode == Demo1)
+                myDFPlayer.playMp3Folder(ApplauseSound1);
+            else if(mode == Demo2)
+                myDFPlayer.playMp3Folder(ApplauseSound2);
+
         }
     }
 
@@ -257,10 +273,11 @@ void input()
         printDetail(type, value); //Print the detail message from DFPlayer to handle different errors and states.
         if(type == DFPlayerPlayFinished)
         {
-            if(state == Play){
-                // play riff and start motion
-                myDFPlayer.playMp3Folder(2);
-                state = Riff;
+            if(state == Playing){
+                // play riff and riff motion
+                myDFPlayer.playMp3Folder(RiffSound);
+                myDFPlayer.enableLoop();
+                state = PlayingRiff;
                 servo_reset();
                 beatIndex = 0;
                 patternIndex = 0;
@@ -271,7 +288,7 @@ void input()
 
 void update()
 {
-    if (state == TestPlay)
+    if (state == TestPlay || state == Playing || state == PlayingRiff)
     {
         servo_update();
     }
