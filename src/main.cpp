@@ -19,11 +19,23 @@ void printDetail(uint8_t type, int value);
 enum State
 {
     Stop = 0,
+    // for develop
     Pause,
-    Play,
-    NumState
+    TestPlay,
+    // for demo
+    Play,  // band play
+    Riff,  // wait arm moving
+    Hold,  // wait kawara-wari
+    Applause, // after kawara-wari
 };
 State state = Stop;
+
+enum Mode
+{
+    Develop = 0,
+    Demo,
+};
+Mode mode = Develop;
 
 int beatIndex = 0;
 int patternIndex = 0;
@@ -148,8 +160,8 @@ void display()
             M5.Lcd.printf("%d: %+4d, %d, %d, %d\n", rhythm_servos[i].Pin(), rhythm_servos[i].Pos(), 
                 rhythm_servos[i].BasePos(), rhythm_servos[i].TargetAng(), rhythm_servos[i].RotateDirection());
         }
-        if (state == Play)
-            M5.Lcd.println("Play ");
+        if (state == TestPlay)
+            M5.Lcd.println("TestPlay ");
         else if(state == Pause)
             M5.Lcd.println("Pause");        
         else if(state == Stop)
@@ -174,43 +186,69 @@ void input()
     if(serialLength > 0){
       Serial.readBytes(readBuffer, serialLength);
       readBuffer[serialLength] = '\0';
+      Serial.printf("%s\n", readBuffer);
     }
 
-    if(M5.BtnA.wasPressed() || readBuffer[0]=='s')
+    if(mode == Develop)
     {
-        if(state == Play)
+        if(M5.BtnA.wasPressed() || readBuffer[0]=='1')
+        {
+            if(state == TestPlay)
+            {
+                state = Pause;
+                myDFPlayer.pause();
+            }else if(state == Stop)
+            {
+                state = TestPlay;
+                lastUpdate = millis();
+                myDFPlayer.playMp3Folder(1);
+            }else if(state == Pause)
+            {
+                state = TestPlay;
+                lastUpdate = millis();
+                myDFPlayer.play();
+            }
+        }
+        if(M5.BtnB.wasPressed() || readBuffer[0]=='2')
         {
             state = Pause;
             myDFPlayer.pause();
-        }else if(state == Stop)
+            if(lastWasReset)
+                servo_set();
+            else
+                servo_reset();
+            lastWasReset = !lastWasReset;
+        }
+        if(M5.BtnC.wasPressed() || readBuffer[0]=='3')
         {
+            state = Stop;
+            myDFPlayer.pause();
+            servo_reset();
+            beatIndex = 0;
+            patternIndex = 0;
+        }
+    }else if(mode == Demo)
+    {
+        if(readBuffer[0]=='1')
+        {// stop -> play
             state = Play;
             lastUpdate = millis();
             myDFPlayer.playMp3Folder(1);
-        }else if(state == Pause)
-        {
-            state = Play;
-            lastUpdate = millis();
-            myDFPlayer.play();
         }
-    }
-    if(M5.BtnB.wasPressed() || readBuffer[0]=='p')
-    {
-        state = Pause;
-        myDFPlayer.pause();
-        if(lastWasReset)
-            servo_set();
-        else
-            servo_reset();
-        lastWasReset = !lastWasReset;
-    }
-    if(M5.BtnC.wasPressed() || readBuffer[0]=='t')
-    {
-        state = Stop;
-        myDFPlayer.pause();
-        servo_reset();
-        beatIndex = 0;
-        patternIndex = 0;
+        if(readBuffer[0]=='2')
+        {// riff -> hold
+            state = Hold;
+            myDFPlayer.pause();
+            //TODO
+            // stop music and motion
+            myDFPlayer.pause();
+        }
+        if(readBuffer[0]=='3')
+        {// hold -> approuse
+            state = Applause;
+            // play applause music and hold pause
+            myDFPlayer.playMp3Folder(3);
+        }
     }
 
     if (myDFPlayer.available()) {
@@ -219,14 +257,21 @@ void input()
         printDetail(type, value); //Print the detail message from DFPlayer to handle different errors and states.
         if(type == DFPlayerPlayFinished)
         {
-            myDFPlayer.next();
+            if(state == Play){
+                // play riff and start motion
+                myDFPlayer.playMp3Folder(2);
+                state = Riff;
+                servo_reset();
+                beatIndex = 0;
+                patternIndex = 0;
+            }
         }
     }
 }
 
 void update()
 {
-    if (state == Play)
+    if (state == TestPlay)
     {
         servo_update();
     }
@@ -235,7 +280,7 @@ void update()
 void loop()
 {
 #ifdef ENABLE_LCD
-    // if (state != Play)
+    // if (state != TestPlay)
     // {
         display();
     // }
