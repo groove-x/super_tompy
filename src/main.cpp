@@ -84,7 +84,7 @@ void servo_update()
         lastUpdate = current_time;
         beatIndex = (beatIndex+1) % beat_len;
         if(beatIndex == 0){
-            patternIndex = (patternIndex+1) % pattern_len; 
+            patternIndex = (patternIndex+1) % Main::pattern_len; 
             // state = Pause;  // only play 1 pattern
             lastUpdate = millis();
         }
@@ -92,11 +92,11 @@ void servo_update()
 
     for(int i=0; i<Swing::Pin::NUM;++i)
     {
-        rhythm_servos[i].Update(Swing::getBeat(patternIndex, i, beatIndex));
+        rhythm_servos[i].Update(Swing::getMainBeat(patternIndex, i, beatIndex));
     }
     for(int i=0; i<Chord::Pin::NUM;++i)
     {
-        chord_servos[i].Update(Chord::getBeat(patternIndex, i, beatIndex));
+        chord_servos[i].Update(Chord::getMainBeat(patternIndex, i, beatIndex));
     }
     for(int i=0; i<Anim::Pin::NUM;++i)
     {

@@ -7,24 +7,33 @@
 namespace Music
 {
     constexpr int beat_len = 16;
-    constexpr int pattern_num = 23;
-    constexpr int pattern_len = 27;
-    constexpr int pattern_len_for_1 = 2;
+    constexpr int beatInterval = (60. / 560) * 1000;  // 560 bpm and 107ms 
+    // int beatInterval = (60. / 120.) / 4. * 1000; // 120 bpm -> 2 beat / 1sec -> 500msec / 4つ打ち (500 / 4) = 125
+    // int beatInterval = (60. / 85.) / 4. * 1000;  // 85 bpm 
+    // int beatInterval = (60. / 81.4) / 4. * 1000; // 81.4 bpm 
+    // int beatInterval = (60. / 60.) / 4. * 1000;  // 60 bpm
+    // int beatInterval = (60. / 150.) / 4. * 1000;  // 60 bpm
+    // int beatInterval = (60. / 75.) / 4. * 1000;  // 60 bpm
+    // int beatInterval = (60. / 30.) / 4. * 1000;  // 30 bpm
+
+    namespace Main{
+        constexpr int pattern_num = 23;
+        constexpr int pattern_len = 27;
+        constexpr int pattern_len_for_1 = 2;
 
         // uint8_t patterns[pattern_len] = {0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1};
         // uint8_t patterns[pattern_len] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         constexpr uint8_t patterns[pattern_len] = {0, 1, 2, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 14, 16, 17, 18, 19, 20, 21, 18, 22};
         // constexpr uint8_t patterns[pattern_len_for_1] = {0, 1}; // 1のみ繰り返し再生
         // constexpr uint8_t patterns[pattern_len] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    }
 
-        constexpr int beatInterval = (60. / 560) * 1000;  // 560 bpm and 107ms 
-        // int beatInterval = (60. / 120.) / 4. * 1000; // 120 bpm -> 2 beat / 1sec -> 500msec / 4つ打ち (500 / 4) = 125
-        // int beatInterval = (60. / 85.) / 4. * 1000;  // 85 bpm 
-        // int beatInterval = (60. / 81.4) / 4. * 1000; // 81.4 bpm 
-        // int beatInterval = (60. / 60.) / 4. * 1000;  // 60 bpm
-        // int beatInterval = (60. / 150.) / 4. * 1000;  // 60 bpm
-        // int beatInterval = (60. / 75.) / 4. * 1000;  // 60 bpm
-        // int beatInterval = (60. / 30.) / 4. * 1000;  // 30 bpm
+    namespace Riff{
+        constexpr int pattern_num = 2;
+        constexpr int pattern_len = 30;
+        constexpr uint8_t patterns[pattern_len] = {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1};
+    }
+
 
     namespace Chord
     {
@@ -35,7 +44,7 @@ namespace Music
             NUM = 2
         };
 
-       constexpr uint8_t beat[pattern_num][Pin::NUM][beat_len]
+       constexpr uint8_t main_beat[Main::pattern_num][Pin::NUM][beat_len]
         = {{ //0 : 0
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // ChordServo
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}  // ChordServo
@@ -107,8 +116,21 @@ namespace Music
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // ChordServo
         }};
 
-        constexpr uint8_t getBeat(int patternIndex, int servo_index, int beat_index){
-            return beat[patterns[patternIndex]][servo_index][beat_index];
+        constexpr uint8_t getMainBeat(int patternIndex, int servo_index, int beat_index){
+            return main_beat[Main::patterns[patternIndex]][servo_index][beat_index];
+        }    
+
+       constexpr uint8_t riff_beat[Riff::pattern_num][Pin::NUM][beat_len]
+        = {{ //0 
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // ChordServo
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}  // ChordServo
+        },{ //1
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // ChordServo
+            {0, 0, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1}  // ChordServo
+        }};
+
+        constexpr uint8_t getRiffBeat(int patternIndex, int servo_index, int beat_index){
+            return riff_beat[Riff::patterns[patternIndex]][servo_index][beat_index];
         }    
     }
 
@@ -125,10 +147,11 @@ namespace Music
             NUM = 6
         };
 
-        constexpr uint8_t beat[pattern_num][Pin::NUM][beat_len]
+        constexpr uint8_t main_beat[Main::pattern_num][Pin::NUM][beat_len]
         = {{ //0 : 0
             {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0},
             {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
@@ -288,8 +311,28 @@ namespace Music
             {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0},
         }};
 
-        constexpr uint8_t getBeat(int patternIndex, int servo_index, int beat_index){
-            return beat[patterns[patternIndex]][servo_index][beat_index];
+        constexpr uint8_t getMainBeat(int patternIndex, int servo_index, int beat_index){
+            return main_beat[Main::patterns[patternIndex]][servo_index][beat_index];
+        }    
+
+        constexpr uint8_t riff_beat[Riff::pattern_num][Pin::NUM][beat_len]
+        = {{ //0
+            {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0},
+            {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+        },{ //1
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0}
+        }};
+
+        constexpr uint8_t getRiffBeat(int patternIndex, int servo_index, int beat_index){
+            return riff_beat[Riff::patterns[patternIndex]][servo_index][beat_index];
         }    
     }
 }
