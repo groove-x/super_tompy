@@ -47,8 +47,8 @@ bool lastWasReset = false;
 RhythmServo rhythm_servos[Swing::Pin::NUM]
  = {RhythmServo(Swing::Pin::DOGMA_HAND_R,  beatInterval, 90, Minus), 
     RhythmServo(Swing::Pin::DOGMA_HAND_L,  beatInterval, 95, Plus),                                               
-    RhythmServo(Swing::Pin::DOGMA_FOOT_L,  beatInterval, 90, Minus),
-    RhythmServo(Swing::Pin::DOGMA_FOOT_R,  beatInterval, 95, Plus),
+    RhythmServo(Swing::Pin::DOGMA_FOOT_R,  beatInterval, 90, Minus),
+    RhythmServo(Swing::Pin::DOGMA_FOOT_L,  beatInterval, 95, Plus),
     RhythmServo(Swing::Pin::SIGMA_HAND_R,  beatInterval, 95, Plus),
     RhythmServo(Swing::Pin::MAGMA_HAND_R,  beatInterval, 95, Plus)};
 
@@ -173,6 +173,7 @@ void setup() {
     delay(1000);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     myDFPlayer.volume(10);  //Set volume value. From 0 to 30
     if(mode == Demo2)
     {
@@ -180,6 +181,9 @@ void setup() {
     }
 =======
     myDFPlayer.volume(25);  //Set volume value. From 0 to 30
+=======
+    myDFPlayer.volume(20);  //Set volume value. From 0 to 30
+>>>>>>> wip use blender
     // myDFPlayer.playMp3Folder(1); //play specific mp3 in SD:/MP3/0001.mp3; File Name(0~65535)
 >>>>>>> save 1
 }
