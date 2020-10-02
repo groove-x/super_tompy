@@ -176,24 +176,13 @@ void setup() {
     servo_reset();
     delay(1000);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     myDFPlayer.volume(10);  //Set volume value. From 0 to 30
     if(mode == Demo2)
     {
         myDFPlayer.playMp3Folder(AncolSound); //play specific mp3 in SD:/MP3/0001.mp3; File Name(0~65535)
     }
-=======
-    myDFPlayer.volume(25);  //Set volume value. From 0 to 30
-=======
     myDFPlayer.volume(20);  //Set volume value. From 0 to 30
->>>>>>> wip use blender
-=======
-    myDFPlayer.volume(2); //Set volume value. From 0 to 30
->>>>>>> Add blender files
     // myDFPlayer.playMp3Folder(1); //play specific mp3 in SD:/MP3/0001.mp3; File Name(0~65535)
->>>>>>> save 1
 }
 
 void display()
