@@ -7,6 +7,10 @@
 #include <RhythmServo.h>
 #include <ChordServo.h>
 #include <AnimationServo.h>
+#include <DogmaPitch.h>
+#include <DogmaRoll.h>
+#include <ShigmaPitch.h>
+#include <ShigmaRoll.h>
 
 using namespace Music;
 
@@ -57,10 +61,10 @@ ChordServo chord_servos[Chord::Pin::NUM]
     ChordServo(Chord::Pin::MAGMA_HAND_L,  beatInterval, 95)};
 
 AnimationServo anim_servos[Anim::Pin::NUM]
- = {AnimationServo(Anim::Pin::DOGMA_HEAD_PITCH, 90, Anim::neck_pitch_frames, Anim::dram_pitch_len),
-    AnimationServo(Anim::Pin::DOGMA_HEAD_ROLL, 90, Anim::neck_roll_frames, Anim::dram_roll_len),
-    AnimationServo(Anim::Pin::SIGMA_HEAD_PITCH, 90, Anim::neck_pitch_frames, Anim::vocal_pitch_len),
-    AnimationServo(Anim::Pin::SIGMA_HEAD_ROLL, 90, Anim::neck_roll_frames, Anim::vocal_pitch_len)};
+ = {AnimationServo(Anim::Pin::DOGMA_HEAD_PITCH, 90, dogma_pitch_frames, dogma_pitch_len),
+    AnimationServo(Anim::Pin::DOGMA_HEAD_ROLL, 90, dogma_roll_frames, dogma_roll_len),
+    AnimationServo(Anim::Pin::SIGMA_HEAD_PITCH, 90, shigma_pitch_frames, dogma_roll_len),
+    AnimationServo(Anim::Pin::SIGMA_HEAD_ROLL, 90, shigma_roll_frames, shigma_roll_len)};
 
 void servo_reset()
 {
@@ -174,6 +178,7 @@ void setup() {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     myDFPlayer.volume(10);  //Set volume value. From 0 to 30
     if(mode == Demo2)
     {
@@ -184,6 +189,9 @@ void setup() {
 =======
     myDFPlayer.volume(20);  //Set volume value. From 0 to 30
 >>>>>>> wip use blender
+=======
+    myDFPlayer.volume(2); //Set volume value. From 0 to 30
+>>>>>>> Add blender files
     // myDFPlayer.playMp3Folder(1); //play specific mp3 in SD:/MP3/0001.mp3; File Name(0~65535)
 >>>>>>> save 1
 }
