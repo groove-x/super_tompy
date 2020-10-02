@@ -360,9 +360,6 @@ namespace Anim
     };
     constexpr int keyframe_len = 8;
 
-    constexpr int dram_pitch_len = 8;
-    constexpr int dram_roll_len = 9;
-    constexpr int vocal_pitch_len = 9;
     constexpr int vocal_roll_len = 9;
 
     KeyFrame keyframes[keyframe_len]
@@ -375,32 +372,6 @@ namespace Anim
          {90, 100}, 
          {120, 100}, 
          {90, 100}};
-
-    // == 頭大きく振る
-    // pitch 80(頭引く) ~ 145(頭下げる)
-    KeyFrame neck_pitch_frames[dram_pitch_len] = { 
-        {120,150 }, 
-        {80, 150 }, 
-        {120,150 }, 
-        {80, 150 } , 
-        {120,150 }, 
-        {80, 150 }, 
-        {120,150 }, 
-        {80, 5000 }, 
-        }; 
-
-    // roll 85(右) ~ 120(左)
-    KeyFrame neck_roll_frames[dram_roll_len] = { 
-        {100, 200} , 
-        {100, 200}, 
-        {100, 200}, 
-        {100, 200}, 
-        {100, 200} , 
-        {100, 200}, 
-        {100, 200}, 
-        {100, 200}, 
-        {100, 5000}, 
-        }; 
 
     float map(int value, float start1, float stop1, float start2, float stop2)
     {
