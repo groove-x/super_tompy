@@ -22,22 +22,23 @@ class AnimationServo
     unsigned long _lastUpdate;
 
     public:
-        AnimationServo(uint8_t pin, int baseAng, KeyFrame *keyframes, int keyframeLength)
+        AnimationServo(uint8_t pin, KeyFrame *keyframes, int keyframeLength)
         {
             _pin = pin;
             _pKeyframes = keyframes;
             _keyframeLength = keyframeLength;
-            _keyframeIndex = 0;
-            _baseAng = baseAng;
+            _keyframeIndex = 1;
+            _baseAng = keyframes[0].angle;
             _pos = _pKeyframes[_keyframeLength].angle;
             _updateInterval = _pKeyframes[_keyframeIndex].duration;  
+            _lastUpdate = 0;
         }
 
         void Reset()
         {
             if(_pos != _pKeyframes[0].angle)
             {
-                _keyframeIndex = 0;
+                _keyframeIndex = 1;
                 _pos = _pKeyframes[_keyframeLength].angle;
                 _updateInterval = _pKeyframes[_keyframeIndex].duration;  
                 _write_angle(_baseAng);
