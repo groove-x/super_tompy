@@ -143,6 +143,7 @@ void servo_update()
 
 void setup() {
     mySoftwareSerial.begin(9600);
+    Serial2.begin(9600);
     M5.begin(true, false, true);
 
     Serial.println();
@@ -221,9 +222,9 @@ void input()
 
     //TODO: 実際に接続するUARTのポートを設定する
     unsigned char readBuffer[] = " ";
-    int serialLength = Serial.available();
+    int serialLength = Serial2.available();
     if(serialLength > 0){
-      Serial.readBytes(readBuffer, serialLength);
+      Serial2.readBytes(readBuffer, serialLength);
       readBuffer[serialLength] = '\0';
       Serial.printf("%s\n", readBuffer);
     }
@@ -303,9 +304,6 @@ void input()
                 servo_reset();
                 beatIndex = 0;
                 patternIndex = 0;
-            }else if(state == PlayingRiff)
-            {
-                myDFPlayer.playMp3Folder(RiffSound);
             }
         }
     }
