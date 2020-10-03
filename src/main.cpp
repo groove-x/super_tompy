@@ -15,6 +15,7 @@
 using namespace Music;
 
 SoftwareSerial mySoftwareSerial(25, 26); // RX, TX
+SoftwareSerial mySoftwareSerial2(12, 13); // RX, TX
 DFRobotDFPlayerMini myDFPlayer;
 void printDetail(uint8_t type, int value);
 
@@ -143,8 +144,8 @@ void servo_update()
 
 void setup() {
     mySoftwareSerial.begin(9600);
+    mySoftwareSerial2.begin(9600);
     M5.begin(true, false, true);
-    Serial2.begin(9600, SERIAL_8N1, 16, 17);
 
     Serial.println();
     Serial.println(F("DFRobot DFPlayer Mini Demo"));
@@ -222,9 +223,9 @@ void input()
 
     //TODO: 実際に接続するUARTのポートを設定する
     unsigned char readBuffer[] = " ";
-    int serialLength = Serial2.available();
+    int serialLength = mySoftwareSerial2.available();
     if(serialLength > 0){
-      Serial2.readBytes(readBuffer, serialLength);
+      mySoftwareSerial2.readBytes(readBuffer, serialLength);
       readBuffer[serialLength] = '\0';
       Serial.printf("%s\n", readBuffer);
     }
