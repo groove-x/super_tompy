@@ -23,7 +23,7 @@ class ChordServo: public Servo
         {
             _initialPos = initialPos;
             for(int i=0; i<ChordPos::NUM; ++i)
-                _chordPositions[i] = _initialPos + i * beatInterval / 10;
+                _chordPositions[i] = _initialPos - i * beatInterval / 10;
             _updateInterval = beatInterval;
             _lastUpdate = 0;
         }

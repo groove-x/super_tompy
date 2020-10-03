@@ -58,8 +58,8 @@ RhythmServo rhythm_servos[Swing::Pin::NUM]
     RhythmServo(Swing::Pin::MAGMA_HAND_R,  beatInterval, 95, Plus)};
 
 ChordServo chord_servos[Chord::Pin::NUM]
- = {ChordServo(Chord::Pin::SIGMA_HAND_L,  beatInterval, 95),
-    ChordServo(Chord::Pin::MAGMA_HAND_L,  beatInterval, 95)};
+ = {ChordServo(Chord::Pin::SIGMA_HAND_L,  beatInterval, 125),
+    ChordServo(Chord::Pin::MAGMA_HAND_L,  beatInterval, 125)};
 
 AnimationServo anim_servos[Anim::Pin::NUM]
  = {AnimationServo(Anim::Pin::DOGMA_HEAD_PITCH, dogma_pitch_frames, dogma_pitch_len),
