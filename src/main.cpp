@@ -41,7 +41,7 @@ enum Mode
     Demo1,        // 試技1回目
     Demo2         // 試技2回目
 };
-Mode mode = Develop;
+Mode mode = Demo1;
 
 int beatIndex = 0;
 int patternIndex = 0;
@@ -307,6 +307,7 @@ void input()
         {
             if(state == Playing){
                 // 終奏を繰り返しつつ腕の準備を待つ
+                myDFPlayer.pause();
                 myDFPlayer.playMp3Folder(RiffSound);
                 state = PlayingRiff;
                 servo_reset();
@@ -314,16 +315,16 @@ void input()
                 patternIndex = 0;
             }
         }
-        if(type == DFPlayerCardOnline)
+        if(type == TimeOut)
         {// timeout handling
-            if(state == Playing){
+            // if(state == Playing){
                 // 終奏を繰り返しつつ腕の準備を待つ
                 myDFPlayer.playMp3Folder(RiffSound);
                 state = PlayingRiff;
                 servo_reset();
                 beatIndex = 0;
                 patternIndex = 0;
-            }
+            // }
         }
     }
 }

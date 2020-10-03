@@ -50,9 +50,6 @@ class AnimationServo
             unsigned long currentTime = millis();
             if((currentTime - _lastUpdate) >= _updateInterval)
             {
-                if(_pin == 0){
-                    Serial.printf("%d\n", _pos);
-                }
                 _lastUpdate = currentTime;
                 _keyframeIndex = (_keyframeIndex+1) % _keyframeLength;
                 _pos = _pKeyframes[_keyframeIndex].angle;
