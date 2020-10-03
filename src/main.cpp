@@ -61,10 +61,10 @@ ChordServo chord_servos[Chord::Pin::NUM]
     ChordServo(Chord::Pin::MAGMA_HAND_L,  beatInterval, 95)};
 
 AnimationServo anim_servos[Anim::Pin::NUM]
- = {AnimationServo(Anim::Pin::DOGMA_HEAD_PITCH, 90, dogma_pitch_frames, dogma_pitch_len),
-    AnimationServo(Anim::Pin::DOGMA_HEAD_ROLL, 90, dogma_roll_frames, dogma_roll_len),
-    AnimationServo(Anim::Pin::SIGMA_HEAD_PITCH, 90, shigma_pitch_frames, dogma_roll_len),
-    AnimationServo(Anim::Pin::SIGMA_HEAD_ROLL, 90, shigma_roll_frames, shigma_roll_len)};
+ = {AnimationServo(Anim::Pin::DOGMA_HEAD_PITCH, dogma_pitch_frames, dogma_pitch_len),
+    AnimationServo(Anim::Pin::DOGMA_HEAD_ROLL, dogma_roll_frames, dogma_roll_len),
+    AnimationServo(Anim::Pin::SIGMA_HEAD_PITCH, shigma_pitch_frames, dogma_roll_len),
+    AnimationServo(Anim::Pin::SIGMA_HEAD_ROLL, shigma_roll_frames, shigma_roll_len)};
 
 void servo_reset()
 {
