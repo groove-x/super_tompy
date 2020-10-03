@@ -40,7 +40,7 @@ enum Mode
     Demo1,        // 試技1回目
     Demo2         // 試技2回目
 };
-Mode mode = Develop;
+Mode mode = Demo1;
 
 int beatIndex = 0;
 int patternIndex = 0;
@@ -143,8 +143,8 @@ void servo_update()
 
 void setup() {
     mySoftwareSerial.begin(9600);
-    Serial2.begin(9600);
     M5.begin(true, false, true);
+    Serial2.begin(9600);
 
     Serial.println();
     Serial.println(F("DFRobot DFPlayer Mini Demo"));
@@ -226,7 +226,8 @@ void input()
     if(serialLength > 0){
       Serial2.readBytes(readBuffer, serialLength);
       readBuffer[serialLength] = '\0';
-      Serial.printf("%s\n", readBuffer);
+    //   Serial.printf("%s\n", readBuffer);
+      M5.Lcd.printf("%s\n", readBuffer);
     }
 
     if(mode == Develop)
