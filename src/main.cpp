@@ -40,7 +40,7 @@ enum Mode
     Demo1,        // 試技1回目
     Demo2         // 試技2回目
 };
-Mode mode = Demo1;
+Mode mode = Develop;
 
 int beatIndex = 0;
 int patternIndex = 0;
