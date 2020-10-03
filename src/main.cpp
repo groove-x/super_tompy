@@ -41,7 +41,7 @@ enum Mode
     Demo1,        // 試技1回目
     Demo2         // 試技2回目
 };
-Mode mode = Demo1;
+Mode mode = Demo2;
 
 int beatIndex = 0;
 int patternIndex = 0;
@@ -229,6 +229,13 @@ void input()
       readBuffer[serialLength] = '\0';
       Serial.printf("%s\n", readBuffer);
     }
+    serialLength = Serial.available();
+    if(serialLength > 0){
+      Serial.readBytes(readBuffer, serialLength);
+      readBuffer[serialLength] = '\0';
+      Serial.printf("%s\n", readBuffer);
+    }
+
 
     if(mode == Develop)
     {
@@ -307,6 +314,17 @@ void input()
                 patternIndex = 0;
             }
         }
+        if(type == DFPlayerCardOnline)
+        {// timeout handling
+            if(state == Playing){
+                // 終奏を繰り返しつつ腕の準備を待つ
+                myDFPlayer.playMp3Folder(RiffSound);
+                state = PlayingRiff;
+                servo_reset();
+                beatIndex = 0;
+                patternIndex = 0;
+            }
+        }
     }
 }
 
@@ -346,6 +364,7 @@ void printDetail(uint8_t type, int value){
       break;
     case DFPlayerCardOnline:
       Serial.println(F("Card Online!"));
+
       break;
     case DFPlayerUSBInserted:
       Serial.println("USB Inserted!");
