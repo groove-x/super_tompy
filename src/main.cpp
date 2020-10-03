@@ -41,7 +41,7 @@ enum Mode
     Demo1,        // 試技1回目
     Demo2         // 試技2回目
 };
-Mode mode = Demo2;
+Mode mode = Develop;
 
 int beatIndex = 0;
 int patternIndex = 0;
@@ -50,10 +50,10 @@ unsigned long printLastUpdate = 0;
 bool lastWasReset = false;
 
 RhythmServo rhythm_servos[Swing::Pin::NUM]
- = {RhythmServo(Swing::Pin::DOGMA_HAND_R,  beatInterval, 90, Minus), 
-    RhythmServo(Swing::Pin::DOGMA_HAND_L,  beatInterval, 95, Plus),                                               
-    RhythmServo(Swing::Pin::DOGMA_FOOT_R,  beatInterval, 90, Minus),
-    RhythmServo(Swing::Pin::DOGMA_FOOT_L,  beatInterval, 95, Plus),
+ = {RhythmServo(Swing::Pin::DOGMA_HAND_R,  beatInterval, 87, Minus), 
+    RhythmServo(Swing::Pin::DOGMA_HAND_L,  beatInterval, 98, Plus),                                               
+    RhythmServo(Swing::Pin::DOGMA_FOOT_R,  beatInterval, 100, Minus),
+    RhythmServo(Swing::Pin::DOGMA_FOOT_L,  beatInterval, 85, Plus),
     RhythmServo(Swing::Pin::SIGMA_HAND_R,  beatInterval, 95, Plus),
     RhythmServo(Swing::Pin::MAGMA_HAND_R,  beatInterval, 95, Plus)};
 
@@ -160,7 +160,7 @@ void setup() {
     }
     Serial.println(F("DFPlayer Mini online."));
  
-    M5.Lcd.setTextSize(2);
+    M5.Lcd.setTextSize(1);
     switch(mode){
         case Develop:
             M5.Lcd.printf("Super tompy: Develop\n\n");
