@@ -48,7 +48,7 @@ class AnimationServo
         void Update()
         {
             unsigned long currentTime = millis();
-            if((currentTime - _lastUpdate) > _updateInterval)
+            if((currentTime - _lastUpdate) >= _updateInterval)
             {
                 _lastUpdate = currentTime;
                 _keyframeIndex = (_keyframeIndex+1) % _keyframeLength;

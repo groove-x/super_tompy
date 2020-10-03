@@ -15,6 +15,7 @@
 using namespace Music;
 
 SoftwareSerial mySoftwareSerial(25, 26); // RX, TX
+SoftwareSerial mySoftwareSerial2(12, 13); // RX, TX
 DFRobotDFPlayerMini myDFPlayer;
 void printDetail(uint8_t type, int value);
 
@@ -49,10 +50,10 @@ unsigned long printLastUpdate = 0;
 bool lastWasReset = false;
 
 RhythmServo rhythm_servos[Swing::Pin::NUM]
- = {RhythmServo(Swing::Pin::DOGMA_HAND_R,  beatInterval, 90, Minus), 
-    RhythmServo(Swing::Pin::DOGMA_HAND_L,  beatInterval, 95, Plus),                                               
-    RhythmServo(Swing::Pin::DOGMA_FOOT_R,  beatInterval, 90, Minus),
-    RhythmServo(Swing::Pin::DOGMA_FOOT_L,  beatInterval, 95, Plus),
+ = {RhythmServo(Swing::Pin::DOGMA_HAND_R,  beatInterval, 87, Minus), 
+    RhythmServo(Swing::Pin::DOGMA_HAND_L,  beatInterval, 98, Plus),                                               
+    RhythmServo(Swing::Pin::DOGMA_FOOT_R,  beatInterval, 100, Minus),
+    RhythmServo(Swing::Pin::DOGMA_FOOT_L,  beatInterval, 85, Plus),
     RhythmServo(Swing::Pin::SIGMA_HAND_R,  beatInterval, 95, Plus),
     RhythmServo(Swing::Pin::MAGMA_HAND_R,  beatInterval, 95, Plus)};
 
@@ -143,6 +144,7 @@ void servo_update()
 
 void setup() {
     mySoftwareSerial.begin(9600);
+    mySoftwareSerial2.begin(9600);
     M5.begin(true, false, true);
 
     Serial.println();
@@ -158,7 +160,7 @@ void setup() {
     }
     Serial.println(F("DFPlayer Mini online."));
  
-    M5.Lcd.setTextSize(2);
+    M5.Lcd.setTextSize(1);
     switch(mode){
         case Develop:
             M5.Lcd.printf("Super tompy: Develop\n\n");
@@ -221,12 +223,19 @@ void input()
 
     //TODO: 実際に接続するUARTのポートを設定する
     unsigned char readBuffer[] = " ";
-    int serialLength = Serial.available();
+    int serialLength = mySoftwareSerial2.available();
+    if(serialLength > 0){
+      mySoftwareSerial2.readBytes(readBuffer, serialLength);
+      readBuffer[serialLength] = '\0';
+      Serial.printf("%s\n", readBuffer);
+    }
+    serialLength = Serial.available();
     if(serialLength > 0){
       Serial.readBytes(readBuffer, serialLength);
       readBuffer[serialLength] = '\0';
       Serial.printf("%s\n", readBuffer);
     }
+
 
     if(mode == Develop)
     {
@@ -303,9 +312,17 @@ void input()
                 servo_reset();
                 beatIndex = 0;
                 patternIndex = 0;
-            }else if(state == PlayingRiff)
-            {
+            }
+        }
+        if(type == DFPlayerCardOnline)
+        {// timeout handling
+            if(state == Playing){
+                // 終奏を繰り返しつつ腕の準備を待つ
                 myDFPlayer.playMp3Folder(RiffSound);
+                state = PlayingRiff;
+                servo_reset();
+                beatIndex = 0;
+                patternIndex = 0;
             }
         }
     }
@@ -347,6 +364,7 @@ void printDetail(uint8_t type, int value){
       break;
     case DFPlayerCardOnline:
       Serial.println(F("Card Online!"));
+
       break;
     case DFPlayerUSBInserted:
       Serial.println("USB Inserted!");
